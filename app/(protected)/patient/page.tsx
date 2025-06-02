@@ -1,3 +1,4 @@
+import { StatSummary } from '@/components/charts/stat-summary'
 import { StatCard } from '@/components/stat-card'
 import { Button } from '@/components/ui/button'
 import { getPatientDashboardStatistics } from '@/utils/services/patient'
@@ -88,7 +89,7 @@ const PatientDashboard = async () => {
       {/* RIGHT */}
       <div className='w-full xl:w-[30%]'>
         <div className='w-full h-[450px] mb-8'>
-          {/* <StatSummary data={appointmentCounts} totalAppointments={totalAppointments} /> */}
+          <StatSummary data={appointmentCounts} total={totalAppointments} />
         </div>
         {/* <AvailableDoctors doctors={availableDoctors} /> */}
         {/* <PatientRatingContainer /> */}
