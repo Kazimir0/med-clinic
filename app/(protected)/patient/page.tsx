@@ -1,3 +1,4 @@
+import { AppointmentChart } from '@/components/charts/appointment-chart'
 import { StatSummary } from '@/components/charts/stat-summary'
 import { StatCard } from '@/components/stat-card'
 import { Button } from '@/components/ui/button'
@@ -77,8 +78,8 @@ const PatientDashboard = async () => {
             </div>
         </div>
         
-        <div className='w-[500px]'>
-          {/* <AppointmentChart data={monthlyData}/> */}
+        <div className='h-[500px]'>
+          <AppointmentChart data={monthlyData}/>
         </div>
         <div className='bg-white rounded-xl p-4 mt-8'>
           {/* <RecentAppointments appointments={last5Records} /> */}

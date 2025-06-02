@@ -9,9 +9,9 @@ import { formatNumber } from "@/utils";
 export const StatSummary = ({ data, total }: { data: any, total: number }) => {
 
     const dataInfo = [
-        { name: "Total", count: total || 101, fill: "white" },
-        { name: "Appointments", count: data?.PENDING + data?.SCHEDULED || 64, fill: "black" },
-        { name: "Consultation", count: data?.COMPLETED || 37, fill: "#2563eb" },
+        { name: "Total", count: total || 0, fill: "white" },
+        { name: "Appointments", count: data?.PENDING + data?.SCHEDULED || 0, fill: "black" },
+        { name: "Consultation", count: data?.COMPLETED || 0, fill: "#2563eb" },
     ]
     const appointment = dataInfo[1].count;
     const consultation = dataInfo[2].count;

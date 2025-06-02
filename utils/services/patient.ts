@@ -1,7 +1,71 @@
 import db from "@/lib/db";
-import { CANCELLED } from "dns";
-import { availableMemory } from "process";
+import { getMonth, startOfYear, endOfMonth, format } from "date-fns";
 
+type AppointmentStatus = "PENDING" | "SCHEDULED" | "COMPLETED" | "CANCELLED";
+
+interface Appointment {
+  status: AppointmentStatus;
+  appointment_date: Date;
+}
+
+function isValidStatus(status: string): status is AppointmentStatus {
+  return ["PENDING", "SCHEDULED", "COMPLETED", "CANCELLED"].includes(status);
+}
+
+const initializeMonthlyData = () => {
+  const this_year = new Date().getFullYear();
+
+  const months = Array.from(
+    { length: getMonth(new Date()) + 1 },
+    (_, index) => ({
+      name: format(new Date(this_year, index), "MMM"),
+      appointment: 0,
+      completed: 0,
+    })
+  );
+  return months;
+};
+
+export const processAppointments = async (appointments: Appointment[]) => {
+  const monthlyData = initializeMonthlyData();
+
+  const appointmentCounts = appointments.reduce<
+    Record<AppointmentStatus, number>
+  >(
+    (acc, appointment) => {
+      const status = appointment.status;
+
+      const appointmentDate = appointment?.appointment_date;
+
+      const monthIndex = getMonth(appointmentDate);
+
+      if (
+        appointmentDate >= startOfYear(new Date()) &&
+        appointmentDate <= endOfMonth(new Date())
+      ) {
+        monthlyData[monthIndex].appointment += 1;
+
+        if (status === "COMPLETED") {
+          monthlyData[monthIndex].completed += 1;
+        }
+      }
+
+      // Grouping by status
+      if (isValidStatus(status)) {
+        acc[status] = (acc[status] || 0) + 1;
+      }
+
+      return acc;
+    },
+    {
+      PENDING: 0,
+      SCHEDULED: 0,
+      COMPLETED: 0,
+      CANCELLED: 0,
+    }
+  );
+    return { appointmentCounts, monthlyData };
+};
 
 export async function getPatientDashboardStatistics(id: string) {
     try {
@@ -39,15 +103,21 @@ export async function getPatientDashboardStatistics(id: string) {
             orderBy: { appointment_date: "desc" },
         });
 
-        // TODO: process appointments info
+        const { appointmentCounts, monthlyData } = await processAppointments(appointments);
+        const last5Records = appointments.slice(0, 5);
+
+        const availableDoctors = await db.doctor.findMany({
+            select: {id: true, name: true, img: true, specialization: true},
+            take: 6,
+        });
         return {
             success: true,
             message: "Patient found",
-            appointmentCounts: { CANCELLED: 0, PENDING: 0, SCHEDULED: 0, COMPLETED: 0 },
+            appointmentCounts,
             totalAppointments: appointments.length,
-            availableDoctors: null,
-            last5Records: null,
-            monthlyData: null,
+            availableDoctors,
+            last5Records,
+            monthlyData,
             status: 200,
             data
         };
