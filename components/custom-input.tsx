@@ -3,6 +3,7 @@ import { Control } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Checkbox } from './ui/checkbox';
 
 interface InputProps {
     type: "input" | "textarea" | "select" | "checkbox" | "radio" | "switch";
@@ -41,6 +42,24 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
                         ))}
                     </SelectContent>
                 </Select>
+            );
+        case "checkbox":
+            return (
+                <div className="items-top flex space-x-2">
+                    <Checkbox
+                        id={props.name}
+                        onCheckedChange={(e) => field.onChange(e === true || null)}
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                        <label
+                            htmlFor={props.name}
+                            className="cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                            {props.label}
+                        </label>
+                        <p className="text-sm text-muted-foreground">{props.placeholder}</p>
+                    </div>
+                </div>
             );
     }
 }
