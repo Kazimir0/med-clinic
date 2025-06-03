@@ -1,8 +1,8 @@
-export function formatNumber (amount: number):string{
-    return amount?.toLocaleString('en-US', {
-        maximumFractionDigits: 0,
-    });
-};
+export function formatNumber(amount: number): string {
+  return amount?.toLocaleString("en-US", {
+    maximumFractionDigits: 0,
+  });
+}
 
 export function getInitials(name: string): string {
   const words = name.trim().split(" ");
@@ -58,3 +58,13 @@ export function calculateAge(dob: Date): string {
 
   return ageString + " old";
 }
+
+export const daysOfWeek = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];

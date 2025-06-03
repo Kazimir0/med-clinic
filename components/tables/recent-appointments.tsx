@@ -58,7 +58,7 @@ export const RecentAppointments = ({ data }: DataProps) => {
                     <div className='flex items-center gap-2 2x:gap-4'>
                         <ProfileImage url={item?.doctor?.img!} name={item?.doctor?.name!} className='bg-blue-600' />
                         <div >
-                            <h3 className='font-medium'>{item?.doctor?.name}</h3>
+                            <h3 className='font-medium uppercase'>{item?.doctor?.name}</h3>
                             <span className='text-xs capitalize'>{item?.doctor?.specialization}</span>
                         </div>
                     </div>

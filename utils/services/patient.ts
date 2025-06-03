@@ -1,5 +1,6 @@
 import db from "@/lib/db";
 import { getMonth, startOfYear, endOfMonth, format } from "date-fns";
+import { daysOfWeek } from "..";
 
 type AppointmentStatus = "PENDING" | "SCHEDULED" | "COMPLETED" | "CANCELLED";
 
@@ -70,7 +71,7 @@ export const processAppointments = async (appointments: Appointment[]) => {
 export async function getPatientDashboardStatistics(id: string) {
     try {
         if (!id) {
-            return { success: false, message: "Patient ID is required", status: 400 };
+            return { success: false, message: "No data found", data:null };
         }
         const data = await db.patient.findUnique({
             where: { id },
@@ -115,16 +116,26 @@ export async function getPatientDashboardStatistics(id: string) {
         const { appointmentCounts, monthlyData } = await processAppointments(appointments);
         const last5Records = appointments.slice(0, 5);
 
-        const availableDoctors = await db.doctor.findMany({
-            select: {id: true, name: true, img: true, specialization: true},
+        const today = daysOfWeek[new Date().getDay()]
+
+        const availableDoctor = await db.doctor.findMany({
+            select: {id: true, name: true, img: true, specialization: true, working_days: true},
+            where:{
+              working_days:{
+                some:{day:{
+                  equals: today,
+                  mode: "insensitive",
+                }},
+              },
+            },
             take: 6,
         });
+        console.log(availableDoctor)
         return {
             success: true,
-            message: "Patient found",
             appointmentCounts,
             totalAppointments: appointments.length,
-            availableDoctors,
+            availableDoctor,
             last5Records,
             monthlyData,
             status: 200,
