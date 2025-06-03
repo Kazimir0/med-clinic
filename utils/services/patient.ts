@@ -130,7 +130,7 @@ export async function getPatientDashboardStatistics(id: string) {
             },
             take: 6,
         });
-        console.log(availableDoctor)
+        // console.log(availableDoctor)
         return {
             success: true,
             appointmentCounts,
