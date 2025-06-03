@@ -98,6 +98,15 @@ export async function getPatientDashboardStatistics(id: string) {
                         specialization: true,
                     },
                 },
+                patient:{
+                    select: {
+                      first_name: true,
+                      last_name: true,
+                      gender: true,
+                      date_of_birth: true,
+                      img: true,
+                    }
+                }
             },
 
             orderBy: { appointment_date: "desc" },
