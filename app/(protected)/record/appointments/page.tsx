@@ -1,4 +1,5 @@
 import { AppointmentActionOptions } from '@/components/appointment-actions';
+import { AppointmentContainer } from '@/components/appointment-container';
 import { AppointmentStatusIndicator } from '@/components/appointment-status-indicator';
 import { Pagination } from '@/components/pagination';
 import { ProfileImage } from '@/components/profile-image';
@@ -141,7 +142,7 @@ const Appointments = async (props: { searchParams?: { [key: string]: string | un
                 <SearchInput />
 
                 {
-                    // isPatient && <AppointmentContainer id={userId} />
+                    isPatient && <AppointmentContainer id={userId!} />
                 }
             </div>
         </div>

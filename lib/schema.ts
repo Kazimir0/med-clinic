@@ -61,3 +61,11 @@ export const PatientFormSchema = z.object({
     }),
   img: z.string().optional(),
 });
+
+export const AppointmentSchema = z.object({
+  doctor_id: z.string().min(1, "Select physician"),
+  type: z.string().min(1, "Select type of appointment"),
+  appointment_date: z.string().min(1, "Select appointment date"),
+  time: z.string().min(1, "Select appointment time"),
+  note: z.string().optional(),
+});

@@ -1,9 +1,10 @@
 import React from 'react'
 import { Control } from 'react-hook-form';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Checkbox } from './ui/checkbox';
+import { Textarea } from './ui/textarea';
 
 interface InputProps {
     type: "input" | "textarea" | "select" | "checkbox" | "radio" | "switch";
@@ -61,6 +62,16 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
                     </div>
                 </div>
             );
+        case "textarea":
+            return(
+                <FormControl>
+                    <Textarea typeof={props.inputType} placeholder={props.placeholder} {...field}>
+                
+                    </Textarea>
+                </FormControl>
+            )
+
+
     }
 }
 export const CustomInput = (props: InputProps) => {
