@@ -101,12 +101,13 @@ const DoctorDashboard = async () => {
         </div>
       </div>
 
-      {/* the remaining 1% is for the gap */}
+      {/* the remaining 1% is for the gap  */}
       {/* RIGHT */}
       <div className=" w-full xl:w-[30%]">
         <div className="w-full h-[450px] mb-8">
           <StatSummary data={appointmentCounts} total={totalAppointment!} />
         </div>
+        {/* Available doctors section */}
         <AvailableDoctors data={availableDoctors as any} />
       </div>
     </div>
