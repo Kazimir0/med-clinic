@@ -22,6 +22,7 @@ const DoctorDashboard = async () => {
     last5Records,
   } = await getDoctorDashboardStats();
 
+  // This data is for displaying the doctor's dashboard statistics
   const cardData = [
     {
       title: "Patients",
