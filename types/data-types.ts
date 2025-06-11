@@ -20,6 +20,7 @@ export type Appointment = {
 };
 
 export type AvailableDoctorProps = {
+  colorCode?: string;
   id: string;
   name: string;
   specialization: string;

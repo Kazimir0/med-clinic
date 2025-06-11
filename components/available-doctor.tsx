@@ -24,7 +24,7 @@ interface DataProps {
     data: AvailableDoctorProps;
 }
 
-const availableDays = ({ data }: { data: Days[] }) => {
+export const availableDays = ({ data }: { data: Days[] }) => {
     const isTodayWorkingDay = data?.find(
         (dayObj) => dayObj?.day === todayDay
     );
@@ -61,8 +61,9 @@ export const AvailableDoctors = async ({
                         <ProfileImage
                             url={doc?.img}
                             name={doc?.name}
-                            className="md:flex min-w-14 min-h-14 md:min-w-16 md:min-h-16 bg-blue-600"
+                            className={`md:flex min-w-14 min-h-14 md:min-w-16 md:min-h-16`}
                             textClassName="text-2xl font-semibold"
+                            bgColor={doc?.colorCode!}
                         />
                         <div>
                             <h2 className="font-semibold text-lg md:text-xl">{doc?.name}</h2>

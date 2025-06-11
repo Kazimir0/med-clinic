@@ -97,3 +97,81 @@ export async function getDoctorDashboardStats() {
     return { success: false, message: "Internal server error", status: 500 };
   }
 }
+
+export async function getDoctorById(id: string) {
+  try {
+    const [doctor, totalAppointment] = await Promise.all([
+      db.doctor.findUnique({
+        where: { id },
+        include: {
+          working_days: true,
+          appointments: {
+            include: {
+              patient: {
+                select: {
+                  id: true,
+                  first_name: true,
+                  last_name: true,
+                  gender: true,
+                  img: true,
+                  colorCode: true,
+                  date_of_birth: true,
+                },
+              },
+              doctor: {
+                select: {
+                  name: true,
+                  specialization: true,
+                  img: true,
+                  colorCode: true,
+                },
+              },
+            },
+            orderBy: {
+              appointment_date: "desc",
+            },
+            take: 10, // Limit to the last 10 appointments
+          },
+        },
+      }),
+      db.appointment.count({
+        where: { doctor_id: id },
+      }),
+    ]);
+
+    return { data: doctor, totalAppointment };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Internal server error", status: 500 };
+  }
+}
+
+
+export async function getRatingById(id: string) {
+  try {
+    const data = await db.rating.findMany({
+      where: { staff_id: id },
+      include: {
+        patient: {
+          select: {
+            last_name: true,
+            first_name: true,
+          }
+        }
+      },
+    });
+
+    const totalRatings = data?.length; // Get total number of ratings
+
+    const sumRatings = data?.reduce((sum, el) => sum + el.rating, 0); // Sum all ratings
+
+    const averageRating = totalRatings > 0 ? sumRatings / totalRatings : 0; // If totalRatings is greater than 0, calculate average, otherwise set to 0
+
+    const formattedRatings = (Math.round(averageRating * 10) / 10).toFixed(1); // Round to one decimal place
+
+    return { totalRatings, averageRating: formattedRatings, ratings: data };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Internal server error", status: 500 };
+  }
+}

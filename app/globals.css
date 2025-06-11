@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@tailwind utilities;
+
+
 
 @custom-variant dark (&:is(.dark *));
 
@@ -119,4 +122,43 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* For WebKit browsers (Chrome, Safari, Edge) */
+html,
+body {
+  overflow: auto;
+}
+
+/* Customize the scrollbar size */
+*::-webkit-scrollbar {
+  width: 8px; /* Width of the vertical scrollbar */
+  height: 8px; /* Height of the horizontal scrollbar */
+}
+
+/* Track (background of the scrollbar) */
+*::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Light gray track */
+}
+
+/* Handle (the draggable part of the scrollbar) */
+*::-webkit-scrollbar-thumb {
+  background: #888; /* Dark gray handle */
+  border-radius: 10px; /* Round edges */
+}
+
+/* Handle on hover */
+*::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Darker handle on hover */
+}
+
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+.doctorCard {
+  @apply bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%];
 }
