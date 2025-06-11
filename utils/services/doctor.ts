@@ -175,3 +175,35 @@ export async function getRatingById(id: string) {
     return { success: false, message: "Internal server error", status: 500 };
   }
 }
+
+
+export async function getAllDoctors({ page, limit, search }: { page: number | string, limit?: number | string, search?: string }) {
+  try {
+    const PAGE_NUMBER = Number(page) <= 0 ? 1 : Number(page); // If page is less than or equal to 0, set it to 1 OR if not will take the page number from the request
+    const LIMIT = Number(limit) || 10; // If limit is not provided, default to 10
+    const SKIP = (PAGE_NUMBER - 1) * LIMIT; // Calculate the number of records to skip based on the page number and limit
+
+    const [doctors, totalRecords] = await Promise.all([
+      db.doctor.findMany({
+        where: {
+          OR: [
+            { name: { contains: search, mode: "insensitive" } },
+            { specialization: { contains: search, mode: "insensitive" } },
+            { email: { contains: search, mode: "insensitive" } },
+          ],
+        },
+        include: { working_days: true },
+        skip: SKIP, // Skip the records based on the page number
+        take: LIMIT, // Limit the number of records returned
+      }),
+      db.doctor.count(),
+    ]);
+    const totalPages = Math.ceil(totalRecords / LIMIT); // Calculate total pages based on total records and limit 
+
+
+    return { success: true, status: 200, data: doctors, totalRecords, totalPages, currentPage: PAGE_NUMBER };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Internal server error", status: 500 };
+  }
+}

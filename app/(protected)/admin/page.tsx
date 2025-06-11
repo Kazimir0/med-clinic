@@ -6,7 +6,6 @@ import { RecentAppointments } from "@/components/tables/recent-appointments";
 import { Button } from "@/components/ui/button";
 import { getAdminDashboardStats } from "@/utils/services/admin";
 import { BriefcaseBusiness, BriefcaseMedical, User, Users } from "lucide-react";
-import App from "next/app";
 import React from "react";
 
 const AdminDashboard = async () => {
