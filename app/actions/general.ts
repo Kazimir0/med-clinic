@@ -3,7 +3,7 @@
 import db from "@/lib/db";
 import { clerkClient } from "@clerk/nextjs/server";
 
-export async function deleteDataById(id: string, deleteType: "doctor" | "staff" | "patient") {
+export async function deleteDataById(id: string, deleteType: "doctor" | "staff" | "patient" | "payment") {
     try {
         switch (deleteType) {
             case "doctor":
@@ -12,7 +12,8 @@ export async function deleteDataById(id: string, deleteType: "doctor" | "staff" 
                 await db.staff.delete({ where: { id: id } });
             case "patient":
                 await db.patient.delete({ where: { id: id } });
-
+            case "payment":
+                await db.payment.delete({ where: { id: Number(id) } });
             default:
                 break;
         }

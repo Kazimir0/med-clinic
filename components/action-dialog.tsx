@@ -22,7 +22,7 @@ interface ActionDialogProps {
     type: "doctor" | "staff" | "delete";
     id: string; // ID of the user or record to delete
     data?: any; // Optional data for the dialog, can be used for additional information
-    deleteType?: "doctor" | "staff" | "patient"; // Specify the type of user to delete
+    deleteType?: "doctor" | "staff" | "patient" | "payment"; // Specify the type of user to delete
 }
 
 export const ActionDialog = ({
