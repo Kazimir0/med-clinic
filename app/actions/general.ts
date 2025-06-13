@@ -8,10 +8,10 @@ export async function deleteDataById(id: string, deleteType: "doctor" | "staff" 
         switch (deleteType) {
             case "doctor":
                 await db.doctor.delete({ where: { id: id } });
-                break;
             case "staff":
                 await db.staff.delete({ where: { id: id } });
-                break;
+            case "patient":
+                await db.patient.delete({ where: { id: id } });
 
             default:
                 break;
