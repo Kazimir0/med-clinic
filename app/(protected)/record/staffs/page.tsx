@@ -1,6 +1,7 @@
 import { ActionDialog } from '@/components/action-dialog';
 import { ViewAction } from '@/components/action-options';
 import { DoctorForm } from '@/components/forms/doctor-form';
+import { StaffForm } from '@/components/forms/staff-form';
 import { Pagination } from '@/components/pagination';
 import { ProfileImage } from '@/components/profile-image';
 import SearchInput from '@/components/search-input';
@@ -60,6 +61,8 @@ const StaffList = async (props: SearchParamsProps) => {
   if (!data) return null;
   const isAdmin = await checkRole('ADMIN'); // if the user is an admin, they can see the list of doctors
 
+//   console.log(data);
+
   const renderRow = (item: Staff
   ) => <tr key={item.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-slate-50'>
     <td className='flex items-center gap-4 p-4'>
@@ -94,7 +97,7 @@ const StaffList = async (props: SearchParamsProps) => {
         </div>
         <div className='w-full lg:w-fit flex items-center justify-between lg:justify-start gap-2'>
           <SearchInput />
-          <DoctorForm />
+          { isAdmin && <StaffForm /> }
         </div>
       </div>
 

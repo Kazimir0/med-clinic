@@ -73,18 +73,20 @@ export const DoctorForm = () => {
                 ...values,
                 work_schedule: workSchedule,
             });
-            if(resp.success){
+            if (resp.success) {
                 toast.success('Doctor added successfully');
                 setWorkSchedule([]); // Reset work schedule after successful submission
                 form.reset(); // Reset the form fields
                 router.refresh(); // Refresh the page to show the new doctor
-            }else if(resp.error){
+            } else if (resp.error) {
                 toast.error(resp.message);
             }
-            
+
         } catch (error) {
             console.log(error)
             toast.error('Something went wrong. Please try again');
+        } finally {
+            setIsLoading(false); // Reset loading state after submission
         }
     }
     const selectedSpecialization = form.watch('specialization'); // Watch the specialization field to update department
@@ -131,7 +133,7 @@ export const DoctorForm = () => {
                             </div>
 
                             <CustomInput type='input' control={form.control} name='address' label='Address' placeholder="123 Main St" />
-                            <CustomInput type='input' control={form.control} name='password' label='Password' placeholder="" inputType='password'/>
+                            <CustomInput type='input' control={form.control} name='password' label='Password' placeholder="" inputType='password' />
                             <div className='mt-6'>
                                 <Label>Working Days</Label>
                                 <SwitchInput data={WORKING_DAYS} setWorkSchedule={setWorkSchedule} />

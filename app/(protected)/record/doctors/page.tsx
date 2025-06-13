@@ -93,7 +93,8 @@ const DoctorsList = async (props: SearchParamsProps) => {
         </div>
         <div className='w-full lg:w-fit flex items-center justify-between lg:justify-start gap-2'>
           <SearchInput />
-          <DoctorForm />
+          {/* only the admin can add doctors, first check if is admin*/}
+          { isAdmin && <DoctorForm /> }
         </div>
       </div>
 

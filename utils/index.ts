@@ -69,6 +69,19 @@ export const daysOfWeek = [
   "Saturday",
 ];
 
+export function generateRandomColor(): string {
+  let hexColor = "";
+  do {
+    const randomInt = Math.floor(Math.random() * 16777216);
+
+    hexColor = `#${randomInt.toString(16).padStart(6, "0")}`;
+  } while (
+    hexColor.toLowerCase() === "#ffffff" ||
+    hexColor.toLowerCase() === "#000000"
+  ); // Ensure it’s not white or black
+  return hexColor;
+}
+
 function formatTime(hour: number, minute: number): string {
   const period = hour >= 12 ? "PM" : "AM";
   const adjustedHour = hour % 12 || 12;
