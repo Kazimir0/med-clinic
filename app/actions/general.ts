@@ -9,6 +9,9 @@ export async function deleteDataById(id: string, deleteType: "doctor" | "staff" 
             case "doctor":
                 await db.doctor.delete({ where: { id: id } });
                 break;
+            case "staff":
+                await db.staff.delete({ where: { id: id } });
+                break;
 
             default:
                 break;
