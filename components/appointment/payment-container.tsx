@@ -87,9 +87,9 @@ export const PaymentsContainer = async ({ patientId }: { patientId: string }) =>
                         {isPatient && item.amount_paid < (item.total_amount - item.discount) ? (
                             <PayButton paymentId={item.id.toString()} />
                         ) : (
-                            <ViewAction
-                                href={`/record/appointments/${item?.appointment_id}?cat=bills`}
-                            />
+                            <span className="text-green-600 font-medium">
+                                Payment Complete
+                            </span>
                         )}
                         {isAdmin && (
                             <ActionDialog

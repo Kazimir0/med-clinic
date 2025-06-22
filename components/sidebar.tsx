@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import React from "react";
 import { LogoutButton } from "./logout-button";
+import { auth } from "@clerk/nextjs/server";
 
 const ACCESS_LEVELS_ALL = [
   "admin",
@@ -33,6 +34,9 @@ const SidebarIcon = ({ icon: Icon }: { icon: LucideIcon }) => {
 
 export const Sidebar = async () => {
   const role = await getRole();
+  const { userId } = await auth();
+
+
   const SIDEBAR_LINKS = [
     {
       label: "MENU",
@@ -134,7 +138,7 @@ export const Sidebar = async () => {
         },
         {
           name: "Billing",
-          href: "/patient/self?cat=payments",
+          href: `/record/appointments/${userId}?cat=payments`,
           access: ["patient"],
           icon: Receipt,
         },

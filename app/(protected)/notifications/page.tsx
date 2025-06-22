@@ -1,14 +1,10 @@
 import { NotificationsContent } from "@/components/notifications/notification-content";
-import { PageTitle } from "@/components/page-title";
 
-export default async function NotificationsPage() {
+export default function NotificationsPage() {
   return (
-    <div className="p-6">
-      <PageTitle title="Notificări" description="Gestionează notificările tale" />
-      
-      <div className="mt-6">
-        <NotificationsContent />
-      </div>
+    <div className="p-4 md:p-6">
+      <h1 className="text-2xl font-bold mb-6">Notifies</h1>
+      <NotificationsContent />
     </div>
   );
 }

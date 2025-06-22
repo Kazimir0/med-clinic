@@ -1,45 +1,30 @@
 import db from "@/lib/db";
 
-export const createNotification = async ({
-  title,
-  message,
-  type,
-  userId = null,
-  link = null,
-  data = null
-}: {
+interface CreateNotificationOptions {
   title: string;
   message: string;
   type: string;
-  userId?: string | null;
-  link?: string | null;
-  data?: any;
-}) => {
+  userId: string;
+  link?: string;
+  data?: Record<string, any>;
+}
+
+export async function createNotification(options: CreateNotificationOptions) {
   try {
-    console.log("=== SERVER NOTIFICATION SYSTEM ===");
-    console.log("Creating notification with userId:", userId);
-    console.log("Title:", title);
-    console.log("Message:", message);
-    console.log("Server createNotification called with:", { title, type, userId });
-
-    const jsonData = data !== null ? data : undefined;
-
     const notification = await db.notification.create({
       data: {
-        title,
-        message,
-        type,
-        user_id: userId,
-        link,
-        data: jsonData,
-        read: false
-      }
+        user_id: options.userId,
+        title: options.title,
+        message: options.message,
+        type: options.type,
+        link: options.link,
+        data: options.data ? options.data : {},
+      },
     });
 
-    console.log("Notification created in database with ID:", notification.id);
     return notification;
   } catch (error) {
-    console.error("Error in server createNotification:", error);
+    console.error("Failed to create notification:", error);
     throw error;
   }
-};
+}
