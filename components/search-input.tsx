@@ -2,7 +2,7 @@
 
 import { Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useCallback, useState } from "react";
+import { FormEvent, useCallback, useState, useEffect } from "react";
 
 const SearchInput = () => {
   const router = useRouter();
@@ -10,10 +10,21 @@ const SearchInput = () => {
   const pathname = usePathname();
   const [searchValue, setSearchValue] = useState("");
 
+  // Preluăm valoarea inițială din query params (dacă există)
+  useEffect(() => {
+    const currentSearchParam = searchParams.get("q") || "";
+    setSearchValue(currentSearchParam);
+  }, [searchParams]);
+
   const createQueryString = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
+      
+      if (value) {
+        params.set(name, value);
+      } else {
+        params.delete(name); // Eliminăm parametrul când valoarea este goală
+      }
 
       return params.toString();
     },
@@ -22,8 +33,20 @@ const SearchInput = () => {
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
+    router.push(pathname + (searchValue ? "?" + createQueryString("q", searchValue) : ""));
+  };
 
-    router.push(pathname + "?" + createQueryString("q", searchValue)); // q = search query
+  // Funcția care se declanșează la schimbarea valorii în input
+  const handleInputChange = (value: string) => {
+    setSearchValue(value);
+    
+    // Dacă valoarea devine goală, resetăm căutarea automat
+      if (value === "" && searchParams.has("q")) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("q");
+      const newQueryString = params.toString();
+      router.push(pathname + (newQueryString ? "?" + newQueryString : ""));
+    }
   };
 
   return (
@@ -33,7 +56,8 @@ const SearchInput = () => {
         <input
           className="outline-none px-2 text-sm"
           placeholder="Search..."
-          onChange={(e) => setSearchValue(e.target.value)}
+          value={searchValue}
+          onChange={(e) => handleInputChange(e.target.value)}
         />
       </div>
     </form>

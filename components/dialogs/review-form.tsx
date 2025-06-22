@@ -1,129 +1,173 @@
-"use client"
+"use client";
 
-import { useAuth } from '@clerk/nextjs';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react'
-import { useForm } from 'react-hook-form';
-import z from 'zod';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
-import { DialogTrigger } from '@radix-ui/react-dialog';
-import { Button } from '../ui/button';
-import { Plus, StarIcon } from 'lucide-react';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
-import { cn } from '@/lib/utils';
-import { Textarea } from '../ui/textarea';
-import { toast } from 'sonner';
-import { createReview } from '@/app/actions/general';
+import { useAuth } from "@clerk/nextjs";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { createReview, ReviewFormValues } from "@/app/actions/general";
+import { toast } from "sonner";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Textarea } from "../ui/textarea";
+import { Plus, StarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-
-export const reviewSchema = z.object({
-    patient_id: z.string(),
-    staff_id: z.string(),
-    rating: z.number().min(1).max(5),
-    comment: z
-        .string()
-        .min(5, "Review must be at least 5 characters long")
-        .max(350, "Review must not exceed 350 characters"),
+// Schema pentru client-side validation
+const reviewSchema = z.object({
+  patient_id: z.string(),
+  staff_id: z.string(),
+  rating: z.number().min(1).max(5),
+  comment: z
+    .string()
+    .min(1, "Review must be at least 10 characters long")
+    .max(500, "Review must not exceed 500 characters"),
 });
 
-export type ReviewFormValues = z.infer<typeof reviewSchema>;
-
 export const ReviewForm = ({ staffId }: { staffId: string }) => {
-    const router = useRouter();
-    const user = useAuth();
-    const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const user = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
-    const form = useForm<ReviewFormValues>({
-        resolver: zodResolver(reviewSchema),
-        defaultValues: {
-            patient_id: user?.userId as string,
-            staff_id: staffId,
-            rating: 1, // Default rating
-            comment: '',
-        },
-    });
+  const form = useForm<ReviewFormValues>({
+    resolver: zodResolver(reviewSchema),
+    defaultValues: {
+      patient_id: user?.userId as string,
+      staff_id: staffId,
+      rating: 1,
+      comment: "",
+    },
+  });
 
-    const handleSubmit = async (values: ReviewFormValues) => {
-        try {
-            setLoading(true);
-            const response = await createReview(values);
+  const handleSubmit = async (values: ReviewFormValues) => {
+    console.log("Form submitted with values:", values);
+    
+    try {
+      setLoading(true);
+      console.log("Calling createReview...");
+      
+      const response = await createReview(values);
+      console.log("Response:", response);
 
-            if (response.success) {
-                toast.success(response.message);
-                router.refresh();
-            } else {
-                toast.error(response.message || "Failed to submit review. Please try again.");
-            }
-        } catch (error) {
-            console.log(error);
-            toast.error("Failed to submit review. Please try again later.");
-        } finally {
-            setLoading(false);
-        }
+      if (response.success) {
+        toast.success(response.message);
+        setOpen(false);
+        form.reset();
+        router.refresh();
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      console.error("Error creating review:", error);
+      toast.error("Failed to create review");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    return (
-        <>
+  const onSubmit = (data: ReviewFormValues) => {
+    console.log("onSubmit called with:", data);
+    handleSubmit(data);
+  };
 
-            <Dialog>
-                <DialogTrigger asChild>
-                    <Button className='px-4 py-2 rounded-lg bg-black/10 text-black hover:bg-transparent font-light'>
-                        <Plus /> Add new review
-                    </Button>
-                </DialogTrigger>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle className='text-lg font-semibold'>Add Review</DialogTitle>
-                        <DialogDescription>Please add your review here!</DialogDescription>
-                    </DialogHeader>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
-                            <FormField control={form.control} name="rating" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Rating</FormLabel>
-                                    <FormControl>
-                                        <div className='flex items-center space-x-3'>
-                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                <button
-                                                    key={star}
-                                                    onClick={() => field.onChange(star)}
-                                                >
-                                                    {/* If star is selected, fill the star icon with yellow color otherwise fill with gray */}
-                                                    <StarIcon size={30} className={cn(star <= field.value ? "text-yellow-500 fill-yellow-500" : "text-gray-400 fill-gray-400")} />
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </FormControl>
-                                    <FormDescription>
-                                        Please select a rating between 1 and 5 stars based on your experience.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+  return (
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button
+            size={"sm"}
+            className="px-4 py-2 rounded-lg bg-black/10 text-black hover:bg-transparent font-light"
+          >
+            <Plus /> Add New Review
+          </Button>
+        </DialogTrigger>
+
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Review</DialogTitle>
+            <DialogDescription>
+              Please fill in the form below to add a new review.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-6"
+            >
+              <FormField
+                control={form.control}
+                name="rating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Rating</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center space-x-3">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => {
+                              console.log("Star clicked:", star);
+                              field.onChange(star);
+                            }}
+                          >
+                            <StarIcon
+                              size={30}
+                              className={cn(
+                                star <= field.value
+                                  ? "text-yellow-500 fill-yellow-500"
+                                  : "text-gray-400"
+                              )}
                             />
-                            <FormField control={form.control} name='comment' render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Comment</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            {...field}
-                                            className='resize-none'
-                                            placeholder='Write your review here...'
-                                        />
-                                    </FormControl>
-                                    <FormDescription>
-                                        Please write a detailed comment about your experience.
-                                    </FormDescription>
-                                </FormItem>
-                            )} />
+                          </button>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      Please rate the staff based on your experience.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                            <Button type='submit' className='w-full' disabled={loading}>{loading ? 'Submitting...' : 'Submit'}</Button>
-                        </form>
-                    </Form>
-                </DialogContent>
-            </Dialog>
+              <FormField
+                control={form.control}
+                name="comment"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Comment</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Write your review here..."
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Please write a detailed review of your experience.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        </>
-    );
+              <Button 
+                type="submit" 
+                disabled={loading} 
+                className="w-full"
+                onClick={() => console.log("Submit button clicked")}
+              >
+                {loading ? "Submitting..." : "Submit"}
+              </Button>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 };

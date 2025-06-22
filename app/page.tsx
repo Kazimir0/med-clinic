@@ -9,7 +9,7 @@ export default async function Home() {
   const { userId } = await auth();
   const role = await getRole();
 
-  if(userId && role){
+  if (userId && role) {
     redirect(`/${role}`);
   }
 
@@ -27,17 +27,17 @@ export default async function Home() {
 
         <div className="text-center max-w-xl flex flex-col items-center justify-center">
           <p className="mb-8">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque
-            dolorem corrupti cum ipsa debitis obcaecati.
+            A modern medical platform for quick schedules and consultations.
+            Manage your health simply and efficiently, with access to the best specialists.
           </p>
 
           <div className="flex gap-4">
             {userId ? (
               <>
-              <Link href = {`/${role}`}>
+                <Link href={`/${role}`}>
                   <Button>View Dashboard</Button>
-              </Link>
-              <UserButton />
+                </Link>
+                <UserButton />
               </>
             ) : (
               <>

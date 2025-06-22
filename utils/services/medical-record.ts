@@ -55,12 +55,11 @@ export async function getMedicalRecords({ page, limit, search }: { page: number 
                     },
                     lab_test: true
                 },
-                skip: SKIP, // Skip the records based on the page number
-                take: LIMIT, // Limit the number of records returned
+                skip: SKIP,
+                take: LIMIT,
                 orderBy: { created_at: "desc" },
             }),
             db.medicalRecords.count({
-                // where: where
                 where
             }),
         ]);

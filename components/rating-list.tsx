@@ -10,7 +10,7 @@ interface DataProps {
     patient: { last_name: string; first_name: string };
 }
 export const RatingList = ({ data }: { data: any[] }) => {
-    return <div className='bg-white rounded-lg'>
+    return <div className="bg-white rounded-lg">
         <div className='flex items-center justify-between p-4'>
             <h1 className='text-xl font-semibold'>Patient Ratings</h1>
         </div>
@@ -30,19 +30,22 @@ export const RatingList = ({ data }: { data: any[] }) => {
                         <div className='flex flex-col items-center'>
                             <div className='flex items-center text-yellow-600'>
                                 {Array.from({ length: rate.rating }, (_, index) => (
-                                    <Star key={index} className='text-lg' />
+                                    <Star key={index} className='text-lg ' />
                                 ))}
                             </div>
-                            <span className=''>{rate.rating.toFixed(1)}</span>
+                            <span className=''>{rate.rating}</span>
                         </div>
                     </div>
+                    <div className="text-sm text-gray-500">
+                            <p>{rate?.comment || "No comment provided"}</p>
+                        </div>
                 </div>
             ))}
             {
                 data?.length === 0 && (
-                <div className='px-2 text-gray-600'>
-                    <p>No ratings found</p>
-                </div>)
+                    <div className='px-2 text-gray-600'>
+                        <p>No ratings found</p>
+                    </div>)
             }
         </div>
     </div>

@@ -135,3 +135,59 @@ export const StaffSchema = z.object({
     .optional()
     .or(z.literal("")),
 });
+
+export const VitalSignsSchema = z.object({
+  patient_id: z.string(),
+  medical_id: z.string(),
+  body_temperature: z.coerce.number({
+    message: "Enter recorded body temperature",
+  }),
+  heartRate: z.string({ message: "Enter recorded heartbeat rate" }),
+  systolic: z.coerce.number({
+    message: "Enter recorded systolic blood pressure",
+  }),
+  diastolic: z.coerce.number({
+    message: "Enter recorded diastolic blood pressure",
+  }),
+  respiratory_rate: z.coerce.number().optional(),
+  oxygen_saturation: z.coerce.number().optional(),
+  weight: z.coerce.number({ message: "Enter recorded weight (Kg)" }),
+  height: z.coerce.number({ message: "Enter recorded height (Cm)" }),
+});
+
+export const DiagnosisSchema = z.object({
+  patient_id: z.string(),
+  medical_id: z.string(),
+  doctor_id: z.string(),
+  symptoms: z.string({ message: "Symptoms required" }),
+  diagnosis: z.string({ message: "Diagnosis required" }),
+  notes: z.string().optional(),
+  prescribed_medications: z.string().optional(),
+  follow_up_plan: z.string().optional(),
+});
+export const PaymentSchema = z.object({
+  id: z.string(),
+  // patient_id: z.string(),
+  // appointment_id: z.string(),
+  bill_date: z.coerce.date(),
+  // payment_date: z.string(),
+  discount: z.string({ message: "discount" }),
+  total_amount: z.string(),
+  // amount_paid: z.string(),
+});
+
+export const PatientBillSchema = z.object({
+  bill_id: z.string(),
+  service_id: z.string(),
+  service_date: z.string(),
+  appointment_id: z.string(),
+  quantity: z.string({ message: "Quantity is required" }),
+  unit_cost: z.string({ message: "Unit cost is required" }),
+  total_cost: z.string({ message: "Total cost is required" }),
+});
+
+export const ServicesSchema = z.object({
+  service_name: z.string().min(1, "Service name is required").max(35, "Service name must be 35 characters or less"),
+  price: z.coerce.number().min(0, "Price must be greater than 0"),
+  description: z.string().min(1, "Description is required").max(100, "Description must be 100 characters or less")
+});

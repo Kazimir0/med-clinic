@@ -63,12 +63,16 @@ const PatientProfile = async (props: ParamsProps) => {
           <Card className="bg-white rounded-xl p-6 w-full lg:w-[70%] border-none space-y-6">
             <div className="flex flex-col md:flex-row md:flex-wrap md:items-center xl:justify-between gap-y-4 md:gap-x-0">
               <SmallCard
-                label={"Gender"}
-                value={data?.gender?.toLowerCase()!}
-              />
-              <SmallCard
                 label="Date of Birth"
-                value={format(data?.date_of_birth!, "yyyy-MM-dd")}
+                value={(() => {
+                  try {
+                    return data?.date_of_birth
+                      ? format(new Date(data.date_of_birth), "yyyy-MM-dd")
+                      : "Not available";
+                  } catch (e) {
+                    return "Invalid date";
+                  }
+                })()}
               />
               <SmallCard label={"Phone Number"} value={data?.phone!} />
             </div>

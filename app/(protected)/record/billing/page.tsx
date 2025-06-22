@@ -50,7 +50,7 @@ const columns = [
     },
     {
         header: "Paid",
-        key: "payable",
+        key: "paid",
         className: "hidden xl:table-cell",
     },
     {
@@ -64,22 +64,21 @@ const columns = [
     },
 ];
 
-
 interface ExtendedProps extends Payment {
     patient: Patient;
+    index?: number;
 }
 
 const BillingPage = async (props: SearchParamsProps) => {
     const searchParams = await props.searchParams;
-    const page = (searchParams?.p || "1") as string; // Current page number for pagination
-    const searchQuery = (searchParams?.q || "") as string; // Search query for filtering doctors
+    const page = (searchParams?.p || "1") as string;
+    const searchQuery = (searchParams?.q || "") as string;
 
-    // Fetch the information
     const { data, totalPages, totalRecords, currentPage } = await getPaymentRecords({
         page,
         search: searchQuery
     })
-    const isAdmin = await checkRole('ADMIN'); // if the user is an admin, they can see the list of doctors
+    const isAdmin = await checkRole('ADMIN');
 
     if (!data) return null;
 
@@ -87,61 +86,72 @@ const BillingPage = async (props: SearchParamsProps) => {
         const name = item?.patient?.first_name + " " + item?.patient?.last_name;
         const patient = item?.patient;
 
+        const uniqueKey = `payment-${item?.id || 'unknown'}-${patient?.id || 'unknown'}-${item?.index || 0}`;
+
         return (
-            <tr key={item.id + patient?.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-slate-50'>
-                <td> # {item?.id}</td>
+            <tr key={uniqueKey} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-slate-50'>
+                <td> # {item?.id || 'N/A'}</td>
                 <td className='flex items-center gap-4 p-4'>
-                    <ProfileImage url={item?.patient?.img!} name={name} bgColor={patient?.colorCode!} textClassName='text-white' />
+                    <ProfileImage
+                        url={patient?.img || ''}
+                        name={name}
+                        bgColor={patient?.colorCode || '#2563eb'}
+                        textClassName='text-white'
+                    />
                     <div>
                         <h3 className='uppercase'>{name}</h3>
-                        <span className='text-sm capitalize'>{patient?.gender}</span>
+                        <span className='text-sm capitalize'>{patient?.gender?.toLowerCase() || 'unknown'}</span>
                     </div>
                 </td>
 
-                <td className='hidden md:table-cell'>{patient?.phone}</td>
+                <td className='hidden md:table-cell'>{patient?.phone || 'N/A'}</td>
 
                 <td className='hidden md:table-cell'>
-                    {
-                        format(item?.bill_date, 'yyyy-MM-dd')
+                    {item?.bill_date ? format(item.bill_date, 'yyyy-MM-dd') : 'N/A'}
+                </td>
+
+                <td className='hidden xl:table-cell'>
+                    {item?.total_amount ? item.total_amount.toFixed(2) : '0.00'}
+                </td>
+
+                <td className='hidden xl:table-cell'>
+                    {item?.discount ? item.discount.toFixed(2) : '0.00'}
+                </td>
+
+                <td className='hidden xl:table-cell'>
+                    {item?.total_amount && item?.discount
+                        ? (item.total_amount - item.discount).toFixed(2)
+                        : '0.00'
                     }
                 </td>
 
-
                 <td className='hidden xl:table-cell'>
-                    {
-                        item?.total_amount.toFixed(2)
-                    }
+                    {item?.amount_paid ? item.amount_paid.toFixed(2) : '0.00'}
                 </td>
 
                 <td className='hidden xl:table-cell'>
-                    {item?.discount.toFixed(2)}
-                </td>
-
-                <td className='hidden xl:table-cell'>
-                    {(item?.total_amount - item?.discount).toFixed(2)}
-                </td>
-
-                <td className='hidden xl:table-cell'>
-                    {(item?.amount_paid).toFixed(2)}
-                </td>
-
-                <td className='hidden xl:table-cell'>
-
-                    <span className={cn(item?.status === 'UNPAID' ? 'text-red-500' : item?.status === 'PAID' ? 'text-green-500' : 'text-gray-600')}>
-                        {item?.status}
+                    <span className={cn(
+                        item?.status === 'UNPAID' ? 'text-red-500' :
+                            item?.status === 'PAID' ? 'text-green-500' :
+                                'text-gray-600'
+                    )}>
+                        {item?.status || 'UNKNOWN'}
                     </span>
                 </td>
 
-                <td>
-                    <ViewAction href={`/appointments/${item?.appointment_id}?cat=bills`} />
-                    {
-                        isAdmin && <ActionDialog type='delete' deleteType='payment' id={item?.id.toString()} />
-                    }
+                <td className='flex items-center gap-2'>
+                    <ViewAction href={`/record/appointments/${item?.appointment_id}?cat=billing`} />
+                    {isAdmin && (
+                        <ActionDialog
+                            type='delete'
+                            deleteType='payment'
+                            id={item?.id?.toString() || ''}
+                        />
+                    )}
                 </td>
             </tr>
         )
     };
-
 
     return (
         <div className='bg-white rounded-xl py-6 px-3 2xl:px-6'>
@@ -157,13 +167,14 @@ const BillingPage = async (props: SearchParamsProps) => {
             </div>
 
             <div className='mt-4'>
-
                 <Table columns={columns} data={data} renderRow={renderRow} />
-
-                <Pagination currentPage={currentPage} totalPages={totalPages} totalRecords={totalRecords} limit={DATA_LIMIT} />
-
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalRecords={totalRecords}
+                    limit={DATA_LIMIT}
+                />
             </div>
-
         </div>
     )
 }

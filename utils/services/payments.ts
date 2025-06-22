@@ -39,6 +39,7 @@ export async function getPaymentRecords({ page, limit, search }: { page: number 
                             img: true,
                             colorCode: true,
                             gender: true,
+                            phone: true,
                         },
                     },
                 },

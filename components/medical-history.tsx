@@ -1,4 +1,4 @@
-import { Diagnosis, LabTest, MedicalRecords, Patient } from "@prisma/client";
+import { Diagnosis, Doctor, LabTest, MedicalRecords, Patient } from "@prisma/client";
 import { BriefcaseBusiness } from "lucide-react";
 import React from "react";
 import { Table } from "./tables/table";
@@ -6,12 +6,12 @@ import { ProfileImage } from "./profile-image";
 import { formatDateTime } from "@/utils";
 import { ViewAction } from "./action-options";
 import { MedicalHistoryDialog } from "./medical-history-dialog";
-
 export interface ExtendedMedicalHistory extends MedicalRecords {
   patient?: Patient;
   diagnosis: Diagnosis[];
-  lab_test: LabTest[];
+  lab_test?: LabTest[];
   index?: number;
+  doctor?: Doctor;
 }
 
 interface DataProps {
@@ -79,9 +79,29 @@ export const MedicalHistory = ({ data, isShowProfile }: DataProps) => {
 
         <td className="">{formatDateTime(item?.created_at.toString())}</td>
 
-        <td className="hidden  items-center py-2  xl:table-cell">
-          {item?.doctor_id}
+        <td className="hidden xl:table-cell py-2">
+          {item?.doctor ? (
+            <div className="flex items-center gap-2">
+              <ProfileImage
+                url={item.doctor.img || ""}
+                name={item.doctor.name || ""}
+              />
+              <div>
+                <p className="font-medium">
+                  {item.doctor.name || "Unknown Doctor"}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {item.doctor.specialization || "General"}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <span className="text-sm italic text-gray-500">
+              {item?.doctor_id}
+            </span>
+          )}
         </td>
+
         <td className="hidden lg:table-cell">
           {item?.diagnosis?.length === 0 ? (
             <span className="text-sm italic text-gray-500">

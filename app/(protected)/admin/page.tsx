@@ -61,10 +61,10 @@ const AdminDashboard = async () => {
   return (
     <div className="py-6 px-3 flex flex-col xl:flex-row rounded-xl gap-6">
       {/* LEFT */}
-      <div className="w-full xl:w-[69%]">
-        <div className="bg-white rounded-xl p-4 mt-8">
+      <div className="w-full xl:w-[69%] flex flex-col gap-6">
+        <div className="bg-white rounded-xl p-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text--lg font-semibold">Statistics</h1>
+            <h1 className="text-lg font-semibold">Statistics</h1>
             <Button size={"sm"} variant={"outline"}>
               {new Date().getFullYear()}
             </Button>
@@ -86,23 +86,28 @@ const AdminDashboard = async () => {
           </div>
         </div>
 
-        <div className="h-[500px]">
-          <AppointmentChart data={monthlyData!} />
+        <div className="bg-white rounded-xl p-4">
+          <div className="h-[400px]">
+            <AppointmentChart data={monthlyData!} />
+          </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 mt-8">
+        <div className="bg-white rounded-xl p-4">
           <RecentAppointments data={last5Records!} />
         </div>
-
-
       </div>
 
       {/* RIGHT */}
-      <div className="w-full xl:w-[30%]">
-        <div className="w-full h-[450px]">
-          <StatSummary data={appointmentCounts} total={totalAppointments!} />
+      <div className="w-full xl:w-[30%] flex flex-col gap-6">
+        <div className="bg-white rounded-xl p-4">
+          <div className="h-[400px]">
+            <StatSummary data={appointmentCounts} total={totalAppointments!} />
+          </div>
         </div>
-        <AvailableDoctors data={availableDoctors as any} />
+        
+        <div className="bg-white rounded-xl p-4">
+          <AvailableDoctors data={availableDoctors as any} />
+        </div>
       </div>
     </div>
   );

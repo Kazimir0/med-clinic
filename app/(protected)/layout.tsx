@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/navbar";
 import { Sidebar } from "@/components/sidebar";
+import { VoiceFlowChatbot } from "@/components/voice-flow-chatbot";
 import React from "react";
 
 const ProtectedLayout = ({children}: {children: React.ReactNode}) => {
@@ -11,6 +12,7 @@ const ProtectedLayout = ({children}: {children: React.ReactNode}) => {
             <Navbar/>
             <div className="h-full w-full p-2 overflow-y-scroll">{children}</div>
         </div>
+        <VoiceFlowChatbot />
     </div>
     );
 };

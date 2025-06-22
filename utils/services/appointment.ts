@@ -141,39 +141,43 @@ export async function getPatientAppointments({ page, limit, search, id }: AllApp
     }
 }
 
-export async function getAppointmentsWithMedRecordsById(id: number) {
-    try {
-        if (!id) {
-            return { success: false, message: "Appointment ID does not exist.", status: 400 };
-        };
-
-        const data = await db.appointment.findUnique({
-            where: { id },
-            include: {
-                patient: true,
-                doctor: true,
-                bills: true,
-                medical: {
-                    include: {
-                        diagnosis: true,
-                        lab_test: true,
-                        vital_signs: true
-                    },
-                },
-            },
-        });
-
-        // If no data is found, return a message
-        if (!data) {
-            return { success: false, message: "Appointment data not found", status: 200, data: null };
-        }
-       
-        // If data is found, return it with a success message
-        return { success: true, message: "Appointment found", status: 200, data };
-
-
-    } catch (error) {
-        console.error(error);
-        return { success: false, message: "Internal server error", status: 500 };
+export async function getAppointmentWithMedicalRecordsById(id: number) {
+  try {
+    if (!id) {
+      return {
+        success: false,
+        message: "Appointment id does not exist.",
+        status: 404,
+      };
     }
+
+    const data = await db.appointment.findUnique({
+      where: { id },
+      include: {
+        patient: true,
+        doctor: true,
+        bills: true,
+        medical: {
+          include: {
+            diagnosis: true,
+            lab_test: true,
+            vital_signs: true,
+          },
+        },
+      },
+    });
+
+    if (!data) {
+      return {
+        success: false,
+        message: "Appointment data not found",
+        status: 200,
+      };
+    }
+
+    return { success: true, data, status: 200 };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Internal Server Error", status: 500 };
+  }
 }

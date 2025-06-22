@@ -132,15 +132,12 @@ type Day = {
 interface SwitchProps {
     data: { label: string; value: string }[];
     setWorkSchedule: React.Dispatch<React.SetStateAction<Day[]>>;
+    workSchedule: Day[]; // Adaugă workSchedule ca prop
 }
 
-// SwitchInput component allows to toggle the doctor's availability for each day of the week.
-export const SwitchInput = ({ data, setWorkSchedule }: SwitchProps) => {
+export const SwitchInput = ({ data, setWorkSchedule, workSchedule }: SwitchProps) => {
     const handleChange = (day: string, field: any, value: string) => {
         setWorkSchedule((prevDays) => {
-            // Check if the day already exists in the work schedule
-            // If it does, update the field with the new value
-            // If it doesn't, add a new entry for the day with the specified field and value
             const dayExists = prevDays.find((d) => d.day === day);
 
             if (dayExists) {
@@ -165,32 +162,48 @@ export const SwitchInput = ({ data, setWorkSchedule }: SwitchProps) => {
     return (
         <div>
             {
-                data?.map((el, id) => (
-                    <div key={id} className='w-full flex items-center space-y-3 border-t border-t-gray-200 py-3'>
-                        {/* Switch component: toggles whether the doctor is available to work on this specific day.
-                        When switched ON, working hours are enabled for the day and default start time is set to 09:00. */}
-                        <Switch id={el.value} className='data-[state=checked]:bg-blue-600 peer' onCheckedChange={e => handleChange(el.value, "start_time", "09:00",)} />
-
-                        {/* Displays the name of the day (Monday, Tuesday,etc...) next to the switch*/}
-                        <Label htmlFor={el.value} className='w-20 capitalize'>
-                            {el.value}
-                        </Label>
-
-                        {/* This label is only visible when the switch is OFF.
-                        It informs the user that the doctor is not scheduled to work on this day.
-                        The label is automatically hidden when the switch is ON, using Tailwind's peer-data selector. */}
-                        <Label htmlFor={el.value} className='text-gray-500 font-normal italic peer-data-[state=checked]:hidden pl-10'>
-                            Not working on this day
-                        </Label>
-
-                        {/* Input fields for start and close time of the doctor's working hours on this day. */}
-                        <div className='hidden peer-data-[state=checked]:flex items-center gap-2 pl-6'>
-                            <Input name={`${el.label}.start_time`} type="time" defaultValue="09:00" onChange={e => handleChange(el.value, "start_time", e.target.value)} />
-                            <Input name={`${el.label}.close_time`} type="time" defaultValue="17:00" onChange={e => handleChange(el.value, "close_time", e.target.value)} />
+                data?.map((el, id) => {
+                    // Verifică dacă ziua există în programul de lucru
+                    const currentDay = workSchedule.find(d => d.day === el.value);
+                    
+                    return (
+                        <div key={id} className='w-full flex items-center space-y-3 border-t border-t-gray-200 py-3'>
+                            <Switch 
+                                id={el.value} 
+                                className='data-[state=checked]:bg-blue-600 peer' 
+                                checked={!!currentDay} 
+                                onCheckedChange={checked => {
+                                    if (checked) {
+                                        handleChange(el.value, "start_time", "09:00");
+                                    } else {
+                                        setWorkSchedule(prev => prev.filter(d => d.day !== el.value));
+                                    }
+                                }} 
+                            />
+                            <Label htmlFor={el.value} className='w-20 capitalize'>
+                                {el.value}
+                            </Label>
+                            <Label htmlFor={el.value} className='text-gray-500 font-normal italic peer-data-[state=checked]:hidden pl-10'>
+                                Not working on this day
+                            </Label>
+                            <div className='hidden peer-data-[state=checked]:flex items-center gap-2 pl-6'>
+                                <Input 
+                                    name={`${el.label}.start_time`} 
+                                    type="time" 
+                                    value={currentDay?.start_time || "09:00"}
+                                    onChange={e => handleChange(el.value, "start_time", e.target.value)} 
+                                />
+                                <Input 
+                                    name={`${el.label}.close_time`} 
+                                    type="time" 
+                                    value={currentDay?.close_time || "17:00"}
+                                    onChange={e => handleChange(el.value, "close_time", e.target.value)} 
+                                />
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    )
+                })
+            }
         </div>
     )
-
 }

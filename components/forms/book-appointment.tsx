@@ -1,4 +1,5 @@
 "use client";
+
 import { AppointmentSchema } from "@/lib/schema";
 import { generateTimes } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +11,7 @@ import z from "zod";
 import {
     Sheet,
     SheetContent,
+    SheetDescription,
     SheetHeader,
     SheetTitle,
     SheetTrigger,
@@ -66,8 +68,10 @@ export const BookAppointment = ({
     try {
       setIsSubmitting(true);
       const newData = { ...values, patient_id: data?.id! };
+      console.log("Sending appointment data:", newData);
 
       const res = await createNewAppointment(newData);
+      console.log("Server response:", res);
 
       if (res.success) {
         form.reset({});
@@ -75,6 +79,7 @@ export const BookAppointment = ({
         toast.success("Appointment created successfully");
       }
     } catch (error) {
+        console.log("Error creating appointment:", error);
       console.log(error);
       toast.error("Something went wrong. Try again later.");
     } finally {
@@ -102,6 +107,9 @@ export const BookAppointment = ({
                     <div className="h-full overflow-y-auto p-4">
                         <SheetHeader>
                             <SheetTitle>Book Appointment</SheetTitle>
+                            <SheetDescription>
+                                Please fill in the details below to book an appointment.
+                            </SheetDescription>
                         </SheetHeader>
 
                         <Form {...form}>

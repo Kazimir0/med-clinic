@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
+import { DiagnosisContainer } from "./appointment/diagnosis-container";
 
 interface DataProps {
   id: string | number;
   patientId: string;
   medicalId?: string;
-  doctor_id: string | number;
+  doctor_id: string;
   label: React.ReactNode;
 }
 export const MedicalHistoryDialog = async ({
@@ -15,6 +16,8 @@ export const MedicalHistoryDialog = async ({
   doctor_id,
   label,
 }: DataProps) => {
+  const stringId = id.toString();
+  
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -26,13 +29,12 @@ export const MedicalHistoryDialog = async ({
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90%] max-w-[425px] md:max-w-2xl 2xl:max-w-4xl p-8 overflow-y-auto">
-        {/* <DiagnosisContainer
-          id={id}
+        <DialogTitle>Diagnosis container form</DialogTitle>
+        <DiagnosisContainer
+          id={stringId}
           patientId={patientId!}
-          doctor_id={doctor_id!}
-        /> */}
-
-        <p>Diagnosis container form</p>
+          doctorId={doctor_id!}
+        />
       </DialogContent>
     </Dialog>
   );

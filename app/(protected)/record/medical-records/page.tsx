@@ -1,16 +1,14 @@
-import { ActionDialog } from '@/components/action-dialog';
 import { ActionOptions, ViewAction } from '@/components/action-options';
 import { Pagination } from '@/components/pagination';
 import { ProfileImage } from '@/components/profile-image';
 import SearchInput from '@/components/search-input';
 import { Table } from '@/components/tables/table';
-import { Button } from '@/components/ui/button';
+import db from '@/lib/db';
 import { SearchParamsProps } from '@/types';
-import { calculateAge } from '@/utils';
 import { checkRole } from '@/utils/roles';
 import { getMedicalRecords } from '@/utils/services/medical-record';
 import { DATA_LIMIT } from '@/utils/settings';
-import { Diagnosis, LabTest, MedicalRecords, Patient, } from '@prisma/client';
+import { Diagnosis, LabTest, MedicalRecords, Patient, Doctor } from '@prisma/client';
 import { format } from 'date-fns';
 import { BriefcaseBusiness, UserPen } from 'lucide-react';
 import React from 'react'
@@ -40,11 +38,6 @@ const columns = [
         className: "hidden lg:table-cell",
     },
     {
-        header: "Lab Test",
-        key: "lab_test",
-        className: "hidden 2xl:table-cell",
-    },
-    {
         header: "Action",
         key: "action",
         className: "",
@@ -55,6 +48,11 @@ interface ExtendedProps extends MedicalRecords {
     patient: Patient;
     diagnosis: Diagnosis[];
     lab_test: LabTest[];
+    doctor: {
+        id: string;
+        name: string;
+        img?: string | null;
+    };
 }
 
 const MedicalRecordsPage = async (props: SearchParamsProps) => {
@@ -72,7 +70,19 @@ const MedicalRecordsPage = async (props: SearchParamsProps) => {
 
     if (!data) return null;
 
-    //   console.log(data);
+    const DoctorName = async ({ doctorId }: { doctorId: string }) => {
+        try {
+            const doctor = await db.doctor.findUnique({
+                where: { id: doctorId },
+                select: { name: true }
+            });
+
+            return doctor?.name || "Nespecificat";
+        } catch (error) {
+            console.error("Error fetching doctor name:", error);
+            return "Nespecificat";
+        }
+    };
 
     const renderRow = (item: ExtendedProps) => {
         const name = item?.patient?.first_name + " " + item?.patient?.last_name;
@@ -80,6 +90,11 @@ const MedicalRecordsPage = async (props: SearchParamsProps) => {
 
         return (
             <tr key={item.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-slate-50'>
+                <td>
+                    <div>
+                        <span className='hidden md:table-cell'>{item?.id}</span>
+                    </div>
+                </td>
                 <td className='flex items-center gap-4 p-4'>
                     <ProfileImage url={item?.patient?.img!} name={name} bgColor={patient?.colorCode!} textClassName='text-white' />
                     <div>
@@ -93,22 +108,18 @@ const MedicalRecordsPage = async (props: SearchParamsProps) => {
                     }
                 </td>
 
-                <td className='hidden 2xl:table-cell'>{item?.doctor_id}</td>
+                <td className='hidden 2xl:table-cell'>
+                    <DoctorName doctorId={item?.doctor_id} />
+                </td>
 
-                <td className='hidden lg:table-cell'>
+                <td className='hidden lg:table-cell pl-8'>
                     {item?.diagnosis?.length === 0
                         ? <span className='text-gray-400 italic'>No diagnosis found</span> : <span>{item?.diagnosis.length}</span>
                     }
                 </td>
 
-                <td className='hidden xl:table-cell'>
-                    {item?.lab_test?.length === 0
-                        ? <span className='text-gray-400 italic'>No lab-test test found</span> : <span>{item?.lab_test.length}</span>
-                    }
-                </td>
-
                 <td>
-                    <ViewAction href={`/appointments/${item?.appointment_id}`} />
+                    <ViewAction href={`/record/appointments/${item?.appointment_id}`} />
                 </td>
             </tr>
         )
@@ -129,7 +140,7 @@ const MedicalRecordsPage = async (props: SearchParamsProps) => {
             </div>
 
             <div className='mt-4'>
-                
+
                 <Table columns={columns} data={data} renderRow={renderRow} />
 
                 <Pagination currentPage={currentPage} totalPages={totalPages} totalRecords={totalRecords} limit={DATA_LIMIT} />

@@ -5,7 +5,6 @@ import { Pagination } from '@/components/pagination';
 import { ProfileImage } from '@/components/profile-image';
 import SearchInput from '@/components/search-input';
 import { Table } from '@/components/tables/table';
-import { Button } from '@/components/ui/button';
 import { SearchParamsProps } from '@/types';
 import { checkRole } from '@/utils/roles';
 import { getAllDoctors } from '@/utils/services/doctor';

@@ -136,7 +136,7 @@ export const DoctorForm = () => {
                             <CustomInput type='input' control={form.control} name='password' label='Password' placeholder="" inputType='password' />
                             <div className='mt-6'>
                                 <Label>Working Days</Label>
-                                <SwitchInput data={WORKING_DAYS} setWorkSchedule={setWorkSchedule} />
+                                <SwitchInput data={WORKING_DAYS} setWorkSchedule={setWorkSchedule} workSchedule={workSchedule}  />
                             </div>
 
                             <Button type='submit' disabled={isLoading} className='w-full mb-3'>Submit</Button>
