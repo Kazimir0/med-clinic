@@ -9,8 +9,21 @@ import { daysOfWeek } from "@/utils";
 
 const getToday = () => {
     const today = new Date().getDay();
+    // console.log("Today index:", today);
+    //  console.log("Today mapped:", daysOfWeek[today]);
     return daysOfWeek[today];
 };
+
+const debugWorkingHours = (workingDays: Days[]) => {
+    const todayIndex = new Date().getDay();
+    const todayName = daysOfWeek[todayIndex];
+    console.log("Today index:", todayIndex);
+    console.log("Today name:", todayName);
+    console.log("Working days:", workingDays);
+    console.log("Day names in array:", daysOfWeek);
+    
+    return workingDays.find(day => day.day.toLowerCase() === todayName.toLowerCase());
+}
 
 const todayDay = getToday();
 
@@ -26,7 +39,7 @@ interface DataProps {
 
 export const availableDays = ({ data }: { data: Days[] }) => {
     const isTodayWorkingDay = data?.find(
-        (dayObj) => dayObj?.day === todayDay
+        (dayObj) => dayObj?.day.toLowerCase() === todayDay.toLowerCase()
     );
 
     return isTodayWorkingDay

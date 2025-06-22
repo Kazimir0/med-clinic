@@ -4,7 +4,6 @@ import { Pagination } from "@/components/pagination";
 import { ProfileImage } from "@/components/profile-image";
 import SearchInput from "@/components/search-input";
 import { Table } from "@/components/tables/table";
-import { Button } from "@/components/ui/button";
 import { SearchParamsProps } from "@/types";
 import { calculateAge } from "@/utils";
 import { checkRole } from "@/utils/roles";
@@ -12,7 +11,9 @@ import { DATA_LIMIT } from "@/utils/settings";
 import { getAllPatients } from "@/utils/services/patient";
 import { Patient } from "@prisma/client";
 import { format } from "date-fns";
-import { UserPen, Users } from "lucide-react";
+import { Pill, UserPen, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const columns = [
   {
@@ -45,9 +46,9 @@ const columns = [
     className: "hidden lg:table-cell",
   },
   {
-    header: "Last Treatment",
-    key: "treatment",
-    className: "hidden 2xl:table-cell",
+    header: "Prescriptions",
+    key: "prescriptions",
+    className: "hidden xl:table-cell pl-6",
   },
   {
     header: "Actions",
@@ -78,7 +79,6 @@ const PatientList = async (props: SearchParamsProps) => {
 
   const renderRow = (item: PatientProps) => {
     const lastVisit = item?.appointments[0]?.medical[0] || null;
-
     const name = item?.first_name + " " + item?.last_name;
 
     return (
@@ -104,31 +104,34 @@ const PatientList = async (props: SearchParamsProps) => {
         <td className="hidden md:table-cell">{item?.phone}</td>
         <td className="hidden lg:table-cell">{item?.email}</td>
         <td className="hidden xl:table-cell">{item?.address}</td>
-        <td className="hidden xl:table-cell">
+        <td className="hidden lg:table-cell">
           {lastVisit ? (
             format(lastVisit?.created_at, "yyyy-MM-dd HH:mm:ss")
           ) : (
             <span className="text-gray-400 italic">No last visit</span>
           )}
         </td>
-        <td className="hidden xl:table-cell">
-          {lastVisit ? (
-            lastVisit?.treatment_plan
-          ) : (
-            <span className="text-gray-400 italic">No last treatment</span>
-          )}
-        </td>
+
+        <td className="hidden xl:table-cell px-4">
+  <Button
+    variant="ghost"
+    size="sm"
+    className="h-8 px-3 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+    asChild
+  >
+    <Link href={`/doctor/prescriptions?patient=${item?.id}`}>
+      <Pill className="h-3.5 w-3.5 mr-1" />
+      See Prescriptions
+    </Link>
+  </Button>
+</td>
+        
         <td>
           <div className="flex items-center gap-2">
             <ViewAction href={`/patient/${item?.id}`} />
 
             <ActionOptions>
               <div className="space-y-3">
-                {/* <Button variant={"ghost"} className="text-xs font-light">
-                  <UserPen size={16} />
-                  Edit Patient
-                </Button> */}
-
                 {isAdmin && (
                   <ActionDialog
                     type="delete"

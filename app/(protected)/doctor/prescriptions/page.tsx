@@ -11,7 +11,15 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 
-const DoctorPrescriptionsPage = async () => {
+// Adaugă tipul pentru parametrii de căutare
+interface SearchParamsProps {
+    searchParams: {
+        patient?: string;
+        [key: string]: string | string[] | undefined;
+    };
+}
+
+const DoctorPrescriptionsPage = async ({ searchParams }: SearchParamsProps) => {
     // Verifică autorizarea utilizatorului
     const { userId } = await auth();
     const isAuthorized = await checkRole(["ADMIN", "DOCTOR"]);
@@ -20,10 +28,17 @@ const DoctorPrescriptionsPage = async () => {
         redirect("/");
     }
 
-    // Obține toate prescripțiile create de doctor
+    // Obține parametrul pentru ID-ul pacientului din URL
+    const patientId = searchParams?.patient || null;
+
+    // Modifică query-ul pentru a filtra după pacient dacă parametrul există
     const prescriptions = await db.prescription.findMany({
         where: {
-            doctor_id: userId
+            // Dacă patientId există, filtrează după pacient, altfel afișează prescripțiile doctorului curent
+            ...(patientId
+                ? { patient_id: patientId }
+                : { doctor_id: userId }
+            ),
         },
         include: {
             patient: {
@@ -41,12 +56,27 @@ const DoctorPrescriptionsPage = async () => {
         }
     });
 
+    // Afișează un titlu diferit dacă vizualizezi prescripțiile unui pacient specific
+    const pageTitle = patientId
+        ? "Patient Prescriptions"
+        : "My Prescriptions";
+
     return (
         <div className="p-4 md:p-6">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-xl md:text-2xl font-bold">Prescriptions</h1>
+                <div>
+                    <h1 className="text-xl md:text-2xl font-bold">{pageTitle}</h1>
+                    {patientId && (
+                        <p className="text-gray-500 text-sm">
+                            Viewing all prescriptions for this patient
+                        </p>
+                    )}
+                </div>
                 <Button asChild>
-                    <Link href="/doctor/prescriptions/create">
+                    <Link href={patientId
+                        ? `/doctor/prescriptions/create?patient=${patientId}`
+                        : "/doctor/prescriptions/create"
+                    }>
                         <Plus className="h-4 w-4 mr-2" /> Create Prescription
                     </Link>
                 </Button>
@@ -55,7 +85,12 @@ const DoctorPrescriptionsPage = async () => {
             {prescriptions.length === 0 ? (
                 <Card>
                     <CardContent className="pt-6 text-center p-10">
-                        <p className="text-gray-500">No prescriptions found. Create your first prescription.</p>
+                        <p className="text-gray-500">
+                            {patientId
+                                ? "No prescriptions found for this patient."
+                                : "No prescriptions found. Create your first prescription."
+                            }
+                        </p>
                     </CardContent>
                 </Card>
             ) : (
@@ -99,12 +134,12 @@ const DoctorPrescriptionsPage = async () => {
                                     <span className="text-sm text-gray-500">
                                         {prescription.medications.length} medication(s)
                                     </span>
-                                    <Link
-                                        href={`/doctor/prescriptions/${prescription.id}`}
+                                    {/* <Link
+                                        href={`/patient/prescription/${prescription.id}`}
                                         className="text-sm text-blue-600 hover:underline"
                                     >
                                         View Details
-                                    </Link>
+                                    </Link> */}
                                 </div>
                             </CardContent>
                         </Card>

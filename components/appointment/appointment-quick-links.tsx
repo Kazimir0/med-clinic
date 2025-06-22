@@ -54,10 +54,10 @@ const AppointmentQuickLinks = async ({ staffId }: { staffId: string }) => {
         </Link>
 
         <Link
-          href="?cat=lab-test"
-          className="px-4 py-2 rounded-lg bg-purple-100 text-purple-600"
+          href="/doctor/prescriptions"
+          className="px-4 py-2 rounded-lg bg-blue-100 text-blue-600"
         >
-          Lab Test
+          Prescriptions
         </Link>
 
         <Link

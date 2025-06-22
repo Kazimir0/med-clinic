@@ -8,7 +8,7 @@ interface DataProps {
 }
 
 export const MedicalHistoryContainer = async ({ id, patientId }: DataProps) => {
-  // Obținem înregistrările medicale
+  // Get medical records
   const medicalRecords = await db.medicalRecords.findMany({
     where: { patient_id: patientId },
     include: {
@@ -18,10 +18,10 @@ export const MedicalHistoryContainer = async ({ id, patientId }: DataProps) => {
     orderBy: { created_at: "desc" },
   });
 
-  // Pentru fiecare înregistrare, căutăm și adăugăm doctorul asociat
+  // For each record, find and add the associated doctor
   const data = await Promise.all(
     medicalRecords.map(async (record) => {
-      // Cautam doctorul folosind doctor_id
+      // Find the doctor using doctor_id
       let doctor = null;
       if (record.doctor_id) {
         doctor = await db.doctor.findUnique({

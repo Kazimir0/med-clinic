@@ -45,9 +45,14 @@ export const MedicalHistory = ({ data, isShowProfile }: DataProps) => {
       key: "diagnosis",
       className: "hidden md:table-cell",
     },
+    // {
+    //   header: "Lab Test",
+    //   key: "lab_test",
+    //   className: "hidden 2xl:table-cell",
+    // },
     {
-      header: "Lab Test",
-      key: "lab_test",
+      header: "Action",
+      key: "action",
       className: "hidden 2xl:table-cell",
     },
   ];
@@ -124,7 +129,7 @@ export const MedicalHistory = ({ data, isShowProfile }: DataProps) => {
             </>
           )}
         </td>
-        <td className="hidden 2xl:table-cell">
+        {/* <td className="hidden 2xl:table-cell">
           {item?.lab_test?.length === 0 ? (
             <span className="text-sm italic text-gray-500">
               No lab test found
@@ -136,7 +141,7 @@ export const MedicalHistory = ({ data, isShowProfile }: DataProps) => {
               <span className="text-sm">Found</span>
             </div>
           )}
-        </td>
+        </td> */}
 
         <td>
           <ViewAction href={`/record/appointments/${item?.appointment_id}`} />
