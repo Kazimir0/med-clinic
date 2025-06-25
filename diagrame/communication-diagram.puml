@@ -1,0 +1,16 @@
+@startuml Communication Diagram - Programare Consultație
+
+actor Pacient
+participant "Interfață Pacient" as UI
+participant "Sistem Programări" as AppointmentSystem
+participant "Bază de Date" as DB
+participant "Notificare Medic" as Notification
+
+Pacient -> UI : 1. Solicită programare
+UI -> AppointmentSystem : 2. Trimite cerere programare
+AppointmentSystem -> DB : 3. Salvează programarea
+AppointmentSystem -> Notification : 4. Trimite notificare medic
+Notification -> DB : 5. Marchează notificarea ca trimisă
+AppointmentSystem -> UI : 6. Confirmă programarea
+
+@enduml

@@ -19,7 +19,7 @@ export default function PaymentSuccessPage() {
       if (sessionId && paymentId) {
         try {
           const result = await markPaymentCompleted(paymentId, sessionId, 'CARD');
-          
+
           if (!result.success) {
             setError(result.message || 'Failed to mark payment as completed');
           }
@@ -34,7 +34,7 @@ export default function PaymentSuccessPage() {
         setIsProcessing(false);
       }
     }
-    
+
     completePayment();
   }, [sessionId, paymentId]);
 
@@ -68,11 +68,15 @@ export default function PaymentSuccessPage() {
           )}
 
           <div className="pt-6">
-            <Link href="/record/appointments">
-              <Button className="w-full">
-                Return to Appointments
-              </Button>
-            </Link>
+            <Button
+              className="w-full"
+              onClick={() => {
+                // Force a hard navigation instead of client-side routing
+                window.location.href = "/record/appointments";
+              }}
+            >
+              Return to Appointments
+            </Button>
           </div>
         </div>
       </div>

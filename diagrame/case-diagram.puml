@@ -1,0 +1,24 @@
+@startuml Use Case Diagram - Platformă Medicală
+
+actor Pacient
+actor Doctor
+actor Admin
+
+rectangle Sistem {
+  Pacient -- (Creare cont)
+  Pacient -- (Programare consultație)
+  Pacient -- (Vizualizare rezultate)
+  Pacient -- (Plată factură)
+  Pacient -- (Lasă recenzie)
+
+  Doctor -- (Gestionare programări)
+  Doctor -- (Consultă pacienți)
+  Doctor -- (Emitere prescripție)
+  Doctor -- (Vizualizare istoric medical)
+
+  Admin -- (Gestionare utilizatori)
+  Admin -- (Configurare servicii)
+  Admin -- (Vizualizare rapoarte)
+}
+
+@enduml

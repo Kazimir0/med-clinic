@@ -1,0 +1,147 @@
+@startuml Physical Schema - Prescripții, Medicamente, Servicii și Plăți
+
+entity "Prescription" as Prescription {
+  *id : Int <<PK>>
+  patient_id : String <<FK>>
+  doctor_id : String <<FK>>
+  status : String
+  notes : String?
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "Medication" as Medication {
+  *id : Int <<PK>>
+  prescription_id : Int <<FK>>
+  name : String
+  dosage : String
+  frequency : String
+  instructions : String?
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "MedicationAdministration" as MedicationAdministration {
+  *id : Int <<PK>>
+  prescription_id : Int <<FK>>
+  medication_id : Int <<FK>>
+  administered_by : String
+  administered_at : DateTime
+  notes : String?
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "Services" as Services {
+  *id : Int <<PK>>
+  service_name : String
+  description : String
+  price : Float
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "Payment" as Payment {
+  *id : Int <<PK>>
+  patient_id : String <<FK>>
+  appointment_id : Int <<FK, U>>
+  bill_date : DateTime
+  payment_date : DateTime
+  total_amount : Float
+  amount_paid : Float
+  payment_method : PaymentMethod
+  status : PaymentStatus
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "PatientBills" as PatientBills {
+  *id : Int <<PK>>
+  bill_id : Int
+  service_id : Int <<FK>>
+  service_date : DateTime
+  quantity : Int
+  unit_cost : Float
+  total_cost : Float
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "Notification" as Notification {
+  *id : Int <<PK>>
+  user_id : String?
+  title : String
+  message : String
+  type : String
+  read : Boolean
+  data : Json?
+  link : String?
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "AuditLog" as AuditLog {
+  *id : Int <<PK>>
+  user_id : String
+  record_id : String
+  action : String
+  details : String?
+  model : String
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "Patient" as Patient {
+  *id : String <<PK>>
+  first_name : String
+  last_name : String
+  date_of_birth : DateTime
+  gender : Gender
+  phone : String
+  email : String <<U>>
+  address : String
+  blood_group : String?
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "Doctor" as Doctor {
+  *id : String <<PK>>
+  email : String <<U>>
+  name : String
+  specialization : String
+  license_number : String
+  phone : String
+  department : String?
+  type : JOBTYPE
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "Appointment" as Appointment {
+  *id : Int <<PK>>
+  patient_id : String <<FK>>
+  doctor_id : String <<FK>>
+  appointment_date : DateTime
+  time : String
+  status : AppointmentStatus
+  type : String
+  note : String?
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+
+
+' Relații principale
+Prescription ||--o{ Medication : ""
+Prescription ||--o{ MedicationAdministration : ""
+Medication ||--o{ MedicationAdministration : ""
+Patient ||--o{ Prescription : ""
+Doctor ||--o{ Prescription : ""
+Payment ||--o{ PatientBills : ""
+Services ||--o{ PatientBills : ""
+Payment ||--o{ Patient : ""
+Payment ||--o{ Appointment : ""
+
+@enduml

@@ -1,0 +1,109 @@
+@startuml Med-Platform Class Diagram Simplified
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam classFontName Arial
+skinparam backgroundColor #FFFFFF
+
+' Clase principale
+class Patient {
+  +id: String
+  +first_name: String
+  +last_name: String
+  +date_of_birth: DateTime
+  +gender: String
+  +phone: String
+  +email: String
+  +address: String
+  +blood_group: String?
+  +medical_history: String?
+  +img: String?
+}
+
+class Doctor {
+  +id: String
+  +name: String
+  +email: String
+  +specialization: String
+  +phone: String
+  +department: String?
+  +type: String
+}
+
+class Staff {
+  +id: String
+  +name: String
+  +email: String
+  +role: String
+  +status: String
+}
+
+class Appointment {
+  +id: Int
+  +patient_id: String
+  +doctor_id: String
+  +appointment_date: DateTime
+  +time: String
+  +status: String
+  +type: String
+}
+
+class MedicalRecords {
+  +id: Int
+  +patient_id: String
+  +appointment_id: Int
+  +doctor_id: String
+  +treatment_plan: String?
+  +notes: String?
+}
+
+class Payment {
+  +id: Int
+  +patient_id: String
+  +appointment_id: Int
+  +total_amount: Float
+  +amount_paid: Float
+  +payment_method: String
+  +status: String
+}
+
+class Services {
+  +id: Int
+  +service_name: String
+  +description: String
+  +price: Float
+}
+
+class Prescription {
+  +id: Int
+  +patient_id: String
+  +doctor_id: String
+  +status: String
+}
+
+class Medication {
+  +id: Int
+  +prescription_id: Int
+  +name: String
+  +dosage: String
+  +frequency: String
+}
+
+' Relațiile principale
+Patient "1" -- "0..*" Appointment : has
+Patient "1" -- "0..*" MedicalRecords : has
+Patient "1" -- "0..*" Payment : makes
+Patient "1" -- "0..*" Prescription : receives
+
+Doctor "1" -- "0..*" Appointment : performs
+Doctor "1" -- "0..*" MedicalRecords : creates
+Doctor "1" -- "0..*" Prescription : issues
+
+Appointment "1" -- "0..1" Payment : generates
+Appointment "1" -- "0..1" MedicalRecords : has
+
+Services "1" -- "0..*" Payment : for
+
+Prescription "1" -- "0..*" Medication : includes
+
+@enduml

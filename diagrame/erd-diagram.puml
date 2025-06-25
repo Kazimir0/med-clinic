@@ -1,0 +1,48 @@
+@startuml ERD - Platformă Medicală
+
+entity "Patient" as Patient
+entity "Doctor" as Doctor
+entity "Staff" as Staff
+entity "Appointment" as Appointment
+entity "Payment" as Payment
+entity "PatientBills" as PatientBills
+entity "LabTest" as LabTest
+entity "MedicalRecords" as MedicalRecords
+entity "VitalSigns" as VitalSigns
+entity "Diagnosis" as Diagnosis
+entity "AuditLog" as AuditLog
+entity "Rating" as Rating
+entity "Services" as Services
+entity "Notification" as Notification
+entity "Prescription" as Prescription
+entity "Medication" as Medication
+entity "MedicationAdministration" as MedicationAdministration
+entity "WorkingDays" as WorkingDays
+
+' Relații principale
+Patient ||--o{ Appointment : ""
+Doctor ||--o{ Appointment : ""
+Patient ||--o{ Payment : ""
+Appointment ||--o{ Payment : ""
+Patient ||--o{ Prescription : ""
+Doctor ||--o{ Prescription : ""
+Prescription ||--o{ Medication : ""
+Prescription ||--o{ MedicationAdministration : ""
+Medication ||--o{ MedicationAdministration : ""
+Patient ||--o{ MedicalRecords : ""
+Doctor ||--o{ MedicalRecords : ""
+Appointment ||--o{ MedicalRecords : ""
+MedicalRecords ||--o{ LabTest : ""
+MedicalRecords ||--o{ VitalSigns : ""
+MedicalRecords ||--o{ Diagnosis : ""
+Doctor ||--o{ Diagnosis : ""
+Patient ||--o{ Rating : ""
+Doctor ||--o{ Rating : ""
+Staff ||--o{ Rating : ""
+Payment ||--o{ PatientBills : ""
+Services ||--o{ PatientBills : ""
+LabTest ||--o{ Services : ""
+Doctor ||--o{ WorkingDays : ""
+PatientBills ||--o{ Payment : ""
+
+@enduml

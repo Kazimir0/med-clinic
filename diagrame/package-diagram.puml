@@ -1,0 +1,69 @@
+@startuml Med-Platform Package Diagram
+
+skinparam packageStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+package "App" {
+  package "auth" {
+    [sign-in]
+    [sign-up]
+  }
+  
+  package "protected" {
+    [admin]
+    [doctor]
+    [patient]
+    [notifications]
+    [record]
+  }
+  
+  [actions]
+  [api]
+  [payment]
+  [layout]
+  [page]
+}
+
+package "Components" {
+  [UI Components]
+  [Shared Components]
+}
+
+package "Data Layer" {
+  [prisma]
+  [lib]
+}
+
+package "Frontend Assets" {
+  [public]
+}
+
+package "Utility" {
+  [types]
+  [utils]
+}
+
+package "Config" {
+  [next.config]
+  [middleware]
+  [tsconfig]
+}
+
+' Dependențe între pachete principale
+"App" ..> "Components"
+"App" ..> "Data Layer"
+"App" ..> "Utility"
+"Components" ..> "Utility"
+"Components" ..> "Data Layer"
+"Config" ..> "App"
+
+' Dependențe între subpachete
+"protected" ..> "auth"
+"protected" ..> "actions"
+"protected" ..> "api"
+"api" ..> "Data Layer"
+"actions" ..> "Data Layer"
+
+@enduml

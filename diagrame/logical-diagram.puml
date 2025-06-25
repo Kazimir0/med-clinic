@@ -1,0 +1,66 @@
+@startuml Logical Schema - Platformă Medicală (Simplificată)
+
+entity "Patient" as Patient {
+  *id <<PK>>
+  first_name
+  last_name
+}
+
+entity "Doctor" as Doctor {
+  *id <<PK>>
+  name
+  specialization
+}
+
+entity "Appointment" as Appointment {
+  *id <<PK>>
+  patient_id <<FK>>
+  doctor_id <<FK>>
+  appointment_date
+}
+
+entity "Payment" as Payment {
+  *id <<PK>>
+  patient_id <<FK>>
+  appointment_id <<FK>>
+}
+
+entity "Prescription" as Prescription {
+  *id <<PK>>
+  patient_id <<FK>>
+  doctor_id <<FK>>
+}
+
+entity "Medication" as Medication {
+  *id <<PK>>
+  prescription_id <<FK>>
+  name
+}
+
+entity "MedicalRecords" as MedicalRecords {
+  *id <<PK>>
+  patient_id <<FK>>
+  appointment_id <<FK>>
+  doctor_id <<FK>>
+}
+
+entity "Services" as Services {
+  *id <<PK>>
+  service_name
+  price
+}
+
+' Relații principale
+Patient ||--o{ Appointment : ""
+Doctor ||--o{ Appointment : ""
+Patient ||--o{ Payment : ""
+Appointment ||--o{ Payment : ""
+Patient ||--o{ Prescription : ""
+Doctor ||--o{ Prescription : ""
+Prescription ||--o{ Medication : ""
+Patient ||--o{ MedicalRecords : ""
+Doctor ||--o{ MedicalRecords : ""
+Appointment ||--o{ MedicalRecords : ""
+Services ||--o{ Payment : ""
+
+@enduml

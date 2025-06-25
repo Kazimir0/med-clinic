@@ -1,0 +1,70 @@
+@startuml Med-Platform Composite Structure Diagram
+
+skinparam componentFontSize 12
+skinparam componentFontName Arial
+skinparam backgroundColor #FFFFFF
+skinparam linetype ortho
+
+' Sistemul principal
+package "Platforma Medicală" {
+  
+  ' Autentificare
+  component "Autentificare și Autorizare\n[Flux autentificare]" as Auth
+
+  ' Sistem Programări
+  component "Sistem Programări\n[API Programări]" as AppointmentSystem
+  component "Gestionare Calendar" as Calendar
+  component "Verificare Disponibilitate" as Availability
+  component "Notificări Programări" as AppNotifications
+  
+  Calendar --> AppNotifications
+  Calendar --> Availability
+
+  ' Sistem Fișe Medicale
+  component "Gestionare Fișe Medicale\n[API Fișe]" as MedicalRecordSystem
+  component "Stocare Date Medicale" as MedicalStorage
+  component "Management Prescripții" as PrescriptionMgr
+  component "Istoric Medical" as MedicalHistory
+  
+  MedicalStorage --> PrescriptionMgr
+  MedicalStorage --> MedicalHistory
+
+  ' Sistem Financiar
+  component "Sistem Financiar\n[API Financiar]" as FinancialSystem
+  component "Procesare Plăți" as PaymentProcessor
+  component "Generare Facturi" as InvoiceGenerator
+  component "Rapoarte Financiare" as FinancialReports
+  
+  PaymentProcessor --> InvoiceGenerator
+  InvoiceGenerator --> FinancialReports
+
+  ' Interfețe utilizator
+  component "Interfață Pacienți\n[Acces Pacient]" as PatientUI
+  component "Interfață Medici\n[Acces Medic]" as DoctorUI
+  component "Interfață Admin\n[Acces Admin]" as AdminUI
+
+  ' Bază de date
+  database "Bază de Date\n[Acces Date]" as Database
+
+  ' Conexiuni între componente
+  Auth --> PatientUI
+  Auth --> DoctorUI
+  Auth --> AdminUI
+
+  PatientUI --> AppointmentSystem
+  PatientUI --> MedicalRecordSystem
+  PatientUI --> FinancialSystem
+
+  DoctorUI --> AppointmentSystem
+  DoctorUI --> MedicalRecordSystem
+
+  AdminUI --> AppointmentSystem
+  AdminUI --> MedicalRecordSystem
+  AdminUI --> FinancialSystem
+
+  AppointmentSystem --> Database
+  MedicalRecordSystem --> Database
+  FinancialSystem --> Database
+}
+
+@enduml

@@ -1,0 +1,141 @@
+@startuml Physical Schema - Utilizatori, Programări și Dosar Medical
+
+entity "Patient" as Patient {
+  *id : String <<PK>>
+  first_name : String
+  last_name : String
+  date_of_birth : DateTime
+  gender : Gender
+  phone : String
+  email : String <<U>>
+  address : String
+  blood_group : String?
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "Doctor" as Doctor {
+  *id : String <<PK>>
+  email : String <<U>>
+  name : String
+  specialization : String
+  license_number : String
+  phone : String
+  department : String?
+  type : JOBTYPE
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "Staff" as Staff {
+  *id : String <<PK>>
+  email : String <<U>>
+  name : String
+  phone : String
+  role : Role
+  status : Status
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "Appointment" as Appointment {
+  *id : Int <<PK>>
+  patient_id : String <<FK>>
+  doctor_id : String <<FK>>
+  appointment_date : DateTime
+  time : String
+  status : AppointmentStatus
+  type : String
+  note : String?
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "MedicalRecords" as MedicalRecords {
+  *id : Int <<PK>>
+  patient_id : String <<FK>>
+  appointment_id : Int <<FK>>
+  doctor_id : String <<FK>>
+  treatment_plan : String?
+  notes : String?
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "WorkingDays" as WorkingDays {
+  *id : Int <<PK>>
+  doctor_id : String <<FK>>
+  day : String
+  start_time : String
+  close_time : String
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "Diagnosis" as Diagnosis {
+  *id : Int <<PK>>
+  patient_id : String <<FK>>
+  medical_id : Int <<FK>>
+  doctor_id : String <<FK>>
+  symptoms : String
+  diagnosis : String
+  notes : String?
+  prescribed_medications : String?
+  follow_up_plan : String?
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "VitalSigns" as VitalSigns {
+  *id : Int <<PK>>
+  patient_id : String <<FK>>
+  medical_id : Int <<FK>>
+  body_temperature : Float
+  systolic : Int
+  diastolic : Int
+  heartRate : String
+  respiratory_rate : Int?
+  oxygen_saturation : Int?
+  weight : Float
+  height : Float
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "LabTest" as LabTest {
+  *id : Int <<PK>>
+  record_id : Int <<FK>>
+  test_date : DateTime
+  result : String
+  status : String
+  notes : String?
+  service_id : Int <<FK>>
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity "Rating" as Rating {
+  *id : Int <<PK>>
+  staff_id : String <<FK>>
+  patient_id : String <<FK>>
+  rating : Int
+  comment : String?
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+' Relații principale
+Patient ||--o{ Appointment : ""
+Doctor ||--o{ Appointment : ""
+Patient ||--o{ MedicalRecords : ""
+Doctor ||--o{ MedicalRecords : ""
+Appointment ||--o{ MedicalRecords : ""
+MedicalRecords ||--o{ Diagnosis : ""
+MedicalRecords ||--o{ VitalSigns : ""
+MedicalRecords ||--o{ LabTest : ""
+Doctor ||--o{ WorkingDays : ""
+Patient ||--o{ Rating : ""
+Doctor ||--o{ Rating : ""
+Staff ||--o{ Rating : ""
+
+@enduml

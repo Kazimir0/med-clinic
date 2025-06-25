@@ -87,8 +87,10 @@ export const PaymentsContainer = async ({ patientId }: { patientId: string }) =>
                         {isPatient && item.amount_paid < (item.total_amount - item.discount) ? (
                             <PayButton paymentId={item.id.toString()} />
                         ) : (
-                            <span className="text-green-600 font-medium">
-                                Payment Complete
+                            <span className={`font-medium ${item.amount_paid >= (item.total_amount - item.discount) ? "text-green-600" : "text-amber-600"}`}>
+                                {item.amount_paid >= (item.total_amount - item.discount)
+                                    ? "Payment Complete"
+                                    : "Payment Pending"}
                             </span>
                         )}
                         {isAdmin && (

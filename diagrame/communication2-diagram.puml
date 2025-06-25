@@ -1,0 +1,16 @@
+@startuml Communication Diagram - Emitere Prescripție
+
+actor Medic
+participant "Interfață Medic" as DoctorUI
+participant "Sistem Prescripții" as PrescriptionSystem
+participant "Bază de Date" as DB
+participant "Notificare Pacient" as Notification
+
+Medic -> DoctorUI : 1. Completează prescripția
+DoctorUI -> PrescriptionSystem : 2. Trimite datele prescripției
+PrescriptionSystem -> DB : 3. Salvează prescripția
+PrescriptionSystem -> Notification : 4. Trimite notificare pacient
+Notification -> DB : 5. Marchează notificarea ca trimisă
+PrescriptionSystem -> DoctorUI : 6. Confirmă emiterea prescripției
+
+@enduml

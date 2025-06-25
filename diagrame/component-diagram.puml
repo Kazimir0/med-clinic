@@ -1,0 +1,43 @@
+@startuml Med-Platform Component Diagram
+
+skinparam componentFontSize 12
+skinparam componentFontName Arial
+skinparam backgroundColor #FFFFFF
+
+package "Frontend" {
+  [Patient Portal] 
+  [Doctor Portal]
+  [Admin Portal]
+}
+
+package "Backend" {
+  [API Server]
+  [Authentication Service]
+  [Notification Service]
+  [Payment Service]
+  [Medical Records Service]
+  [Appointment Service]
+  [Prescription Service]
+}
+
+database "Database" as DB
+
+' Relații între componente
+[Patient Portal] --> [API Server]
+[Doctor Portal] --> [API Server]
+[Admin Portal] --> [API Server]
+
+[API Server] --> [Authentication Service]
+[API Server] --> [Notification Service]
+[API Server] --> [Payment Service]
+[API Server] --> [Medical Records Service]
+[API Server] --> [Appointment Service]
+[API Server] --> [Prescription Service]
+
+[API Server] --> DB
+[Medical Records Service] --> DB
+[Appointment Service] --> DB
+[Prescription Service] --> DB
+[Payment Service] --> DB
+
+@enduml

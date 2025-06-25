@@ -1,0 +1,88 @@
+@startuml Med-Platform Object Diagram
+
+skinparam objectFontSize 12
+skinparam objectFontName Arial
+skinparam backgroundColor #FFFFFF
+
+' Definirea obiectelor
+object "patient1: Patient" as patient1 {
+  id = "P10051"
+  first_name = "John"
+  last_name = "Smith"
+  date_of_birth = "1985-03-15"
+  gender = "MALE"
+  email = "john.smith@email.com"
+  phone = "0712345678"
+}
+
+object "doctor1: Doctor" as doctor1 {
+  id = "D20023"
+  name = "Dr. Maria Johnson"
+  specialization = "Cardiologie"
+  email = "maria.johnson@clinic.com"
+  phone = "0723456789"
+}
+
+object "appointment1: Appointment" as appointment1 {
+  id = 12345
+  appointment_date = "2025-06-30 10:00"
+  status = "SCHEDULED"
+  type = "Consultație"
+  note = "Control periodic"
+}
+
+object "medicalRecord1: MedicalRecords" as medicalRecord1 {
+  id = 5001
+  treatment_plan = "Monitorizare tensiune arterială"
+  notes = "Pacientul prezintă simptome de hipertensiune"
+}
+
+object "prescription1: Prescription" as prescription1 {
+  id = 7823
+  status = "ACTIVE"
+  notes = "A se administra conform recomandărilor"
+}
+
+object "medication1: Medication" as medication1 {
+  id = 4512
+  name = "Norvasc"
+  dosage = "5mg"
+  frequency = "O dată pe zi, dimineața"
+}
+
+object "medication2: Medication" as medication2 {
+  id = 4513
+  name = "Aspirin"
+  dosage = "100mg"
+  frequency = "O dată pe zi, seara"
+}
+
+object "payment1: Payment" as payment1 {
+  id = 9876
+  total_amount = 350.00
+  amount_paid = 350.00
+  payment_method = "CARD"
+  status = "PAID"
+}
+
+object "service1: Services" as service1 {
+  id = 101
+  service_name = "Consultație Cardiologie"
+  price = 350.00
+}
+
+' Relațiile între obiecte
+patient1 -- appointment1 : are programată >
+doctor1 -- appointment1 : realizează >
+appointment1 -- medicalRecord1 : generează >
+medicalRecord1 -- doctor1 : creată de >
+medicalRecord1 -- patient1 : aparține >
+prescription1 -- doctor1 : emisă de >
+prescription1 -- patient1 : prescrisă pentru >
+prescription1 -- medication1 : include >
+prescription1 -- medication2 : include >
+payment1 -- appointment1 : pentru >
+payment1 -- patient1 : efectuată de >
+payment1 -- service1 : acoperă >
+
+@enduml

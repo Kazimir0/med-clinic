@@ -1,0 +1,17 @@
+@startuml Activity Diagram - Programare consultație
+
+start
+:Autentificare pacient;
+:Creare programare;
+:Selectare medic, dată și oră;
+if (Date valide?) then (da)
+  :Salvează programarea;
+  :Afișează programarea către doctor;
+  :Doctorul confirmă sau refuză;
+  :Afișare status programare pentru pacient;
+else (nu)
+  :Afișare eroare și revenire la completare;
+endif
+stop
+
+@enduml
