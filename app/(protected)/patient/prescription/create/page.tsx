@@ -19,6 +19,7 @@ interface PrescriptionFormProps {
   patients: Patient[];
 }
 
+// Medication schema for validation
 const medicationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   dosage: z.string().min(1, "Dosage is required"),
@@ -26,6 +27,7 @@ const medicationSchema = z.object({
   instructions: z.string().optional(),
 });
 
+// Prescription schema for validation
 const prescriptionSchema = z.object({
   patientId: z.string().min(1, "Patient is required"),
   medications: z.array(medicationSchema).min(1, "At least one medication is required"),
@@ -36,6 +38,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
+  // Initialize react-hook-form with zod validation
   const form = useForm<z.infer<typeof prescriptionSchema>>({
     resolver: zodResolver(prescriptionSchema),
     defaultValues: {
@@ -45,11 +48,13 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
     },
   });
 
+  // Manage dynamic medication fields
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "medications",
   });
 
+  // Handle form submission
   async function onSubmit(values: z.infer<typeof prescriptionSchema>) {
     try {
       setIsSubmitting(true);
@@ -73,6 +78,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Patient selection dropdown */}
         <FormField
           control={form.control}
           name="patientId"
@@ -104,6 +110,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
         <div>
           <h3 className="font-medium mb-4">Medications</h3>
           <div className="space-y-4">
+            {/* Render medication fields dynamically */}
             {fields.map((field, index) => (
               <div key={field.id} className="p-4 border rounded-md bg-gray-50">
                 <div className="flex justify-between items-center mb-4">
@@ -121,6 +128,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Medication name field */}
                   <FormField
                     control={form.control}
                     name={`medications.${index}.name`}
@@ -135,6 +143,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
                     )}
                   />
 
+                  {/* Dosage field */}
                   <FormField
                     control={form.control}
                     name={`medications.${index}.dosage`}
@@ -149,6 +158,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
                     )}
                   />
 
+                  {/* Frequency field */}
                   <FormField
                     control={form.control}
                     name={`medications.${index}.frequency`}
@@ -163,6 +173,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
                     )}
                   />
 
+                  {/* Instructions field (optional) */}
                   <FormField
                     control={form.control}
                     name={`medications.${index}.instructions`}
@@ -180,6 +191,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
               </div>
             ))}
 
+            {/* Button to add another medication */}
             <Button
               type="button"
               variant="outline"
@@ -190,6 +202,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
           </div>
         </div>
 
+        {/* Notes field (optional) */}
         <FormField
           control={form.control}
           name="notes"
@@ -204,6 +217,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
           )}
         />
 
+        {/* Form action buttons */}
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={() => router.back()}>
             Cancel

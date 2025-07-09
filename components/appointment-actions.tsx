@@ -14,6 +14,8 @@ interface ActionsProps {
   appointmentId: number;
 }
 
+// AppointmentActionOptions provides a popover menu for appointment-related actions (view, approve, cancel)
+// It checks user role and appointment status to determine which actions are available.
 export const AppointmentActionOptions = async ({
   userId,
   patientId,
@@ -21,11 +23,13 @@ export const AppointmentActionOptions = async ({
   status,
   appointmentId,
 }: ActionsProps) => {
+  // Get current authenticated user and check if user is an admin
   const user = await auth();
   const isAdmin = await checkRole("ADMIN");
 
   return (
     <Popover>
+      {/* PopoverTrigger is the ellipsis button to open the actions menu */}
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -35,9 +39,11 @@ export const AppointmentActionOptions = async ({
         </Button>
       </PopoverTrigger>
 
+      {/* PopoverContent displays the available actions */}
       <PopoverContent className="w-56 p-3">
         <div className="space-y-3 flex flex-col items-start">
           <span className="text-gray-400 text-xs">Perform Actions</span>
+          {/* View Full Details action, always available */}
           <Button
             size="sm"
             variant="ghost"
@@ -49,13 +55,16 @@ export const AppointmentActionOptions = async ({
             </Link>
           </Button>
 
+          {/* Approve action, only if not already scheduled */}
           {status !== "SCHEDULED" && (
             <AppointmentActionDialog
               type="approve"
               id={appointmentId}
+              // Only admin or doctor can approve
               disabled={isAdmin || user.userId === doctorId}
             />
           )}
+          {/* Cancel action, only if appointment is pending and user is admin, doctor, or patient */}
           <AppointmentActionDialog
             type="cancel"
             id={appointmentId}

@@ -14,20 +14,22 @@ interface PageProps {
 }
 
 const PrescriptionDetailPage = async ({ params }: PageProps) => {
+  // Get current user ID
   const { userId } = await auth();
   
   if (!userId) {
+    // Redirect unauthenticated users to sign-in
     redirect("/sign-in");
   }
 
   const prescriptionId = parseInt(params.id);
   
-  // Verificăm dacă ID-ul este un număr valid
+  // Check if the ID is a valid number
   if (isNaN(prescriptionId)) {
     redirect("/patient/prescription");
   }
 
-  // Obține prescripția cu detalii despre administrări
+  // Fetch prescription with medication administration details
   const prescription = await db.prescription.findUnique({
     where: {
       id: prescriptionId,
@@ -52,7 +54,7 @@ const PrescriptionDetailPage = async ({ params }: PageProps) => {
     }
   });
   
-  // Redirecționează dacă prescripția nu există sau nu aparține pacientului
+  // Redirect if prescription does not exist or does not belong to patient
   if (!prescription) {
     redirect("/patient/prescription");
   }
@@ -60,6 +62,7 @@ const PrescriptionDetailPage = async ({ params }: PageProps) => {
   return (
     <div className="p-4 md:p-6">
       <div className="mb-6">
+        {/* Back link to prescriptions list */}
         <Link 
           href="/patient/prescription" 
           className="flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
@@ -94,6 +97,7 @@ const PrescriptionDetailPage = async ({ params }: PageProps) => {
         </CardContent>
       </Card>
       
+      {/* Medications and their administration history */}
       <h2 className="text-lg font-medium mb-4">Medications and Administration History</h2>
       <div className="space-y-4">
         {prescription.medications.map((medication) => (

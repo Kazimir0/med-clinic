@@ -16,15 +16,18 @@ const AppointmentDetailsPage = async ({
     params: Promise<{ id: string }>;
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
+    // Get appointment id and search params
     const { id } = await params;
     const search = await searchParams;
+    // Determine which tab/category to show (charts, appointments, etc.)
     const cat = (search?.cat as string) || "charts";
 
+    // Fetch appointment data with medical records
     const { data } = await getAppointmentWithMedicalRecordsById(Number(id));
 
     return (
         <div className="flex p-6 flex-col-reverse lg:flex-row w-full min-h-screen gap-10">
-            {/* LEFT */}
+            {/* LEFT: Main content area with tabbed sections */}
             <div className="w-full lg:w-[65%] flex flex-col gap-6">
                 {cat === "charts" && <ChartContainer id={data?.patient_id!} />}
                 {cat === "appointments" && (
@@ -59,7 +62,7 @@ const AppointmentDetailsPage = async ({
                     <PaymentsContainer patientId={data?.patient_id!} />
                 )}
             </div>
-            {/* RIGHT */}
+            {/* RIGHT: Sidebar with quick links and patient details */}
             <div className="flex-1 space-y-6">
                 <AppointmentQuickLinks staffId={data?.doctor_id as string} />
                 <PatientDetailsCard data={data?.patient!} />

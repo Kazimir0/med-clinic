@@ -109,13 +109,13 @@ export const Sidebar = async () => {
         {
           name: "Administer Medications",
           href: "/doctor/administer-medications",
-          access: ["admin", "doctor", "nurse"],
+          access: ["doctor", "nurse"],
           icon: FileText,
         },
         {
           name: "Prescriptions",
           href: "/doctor/prescriptions",
-          access: ["admin", "doctor"],
+          access: ["doctor"],
           icon: Pill,
         },
         {

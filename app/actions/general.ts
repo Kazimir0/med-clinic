@@ -5,19 +5,24 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
-// Definim schema direct în acest fișier pentru a evita problemele de import
+// Define the review schema here to avoid import issues and ensure validation is always available
 const reviewSchema = z.object({
-  patient_id: z.string(),
-  staff_id: z.string(),
-  rating: z.number().min(1).max(5),
+  patient_id: z.string(), // Patient's unique identifier
+  staff_id: z.string(),   // Staff (doctor/nurse) unique identifier
+  rating: z.number().min(1).max(5), // Rating must be between 1 and 5
   comment: z
     .string()
     .min(1, "Review must be at least 10 characters long")
-    .max(250, "Review must not exceed 250 characters"),
+    .max(250, "Review must not exceed 250 characters"), // Comment length constraints
 });
 
 export type ReviewFormValues = z.infer<typeof reviewSchema>;
 
+/**
+ * Deletes a record and all related data by ID, based on the entity type.
+ * Handles cascading deletes for related records and user deletion from Clerk if needed.
+ * Returns a status object indicating success or failure.
+ */
 export async function deleteDataById(
   id: string,
   deleteType: "doctor" | "staff" | "patient" | "payment" | "bill" | "service" | "payment-method"
@@ -28,7 +33,7 @@ export async function deleteDataById(
     switch (deleteType) {
       case "doctor":
         try {
-          // Verifica daca doctorul exista
+          // Check if the doctor exists before attempting deletion
           const doctor = await db.doctor.findUnique({ where: { id } });
           if (!doctor) {
             return {
@@ -38,28 +43,21 @@ export async function deleteDataById(
             };
           }
 
-          // Sterge mai intai toate înregistrările asociate
+          // Delete all records associated with this doctor in a transaction for consistency
           await db.$transaction([
-            // Sterge toate rating-urile asociate cu acest doctor
-            db.rating.deleteMany({ where: { staff_id: id } }),
-
-            // Sterge toate programarile asociate cu acest doctor
-            db.appointment.deleteMany({ where: { doctor_id: id } }),
-
-            // Sterge zilele de lucru asociate cu acest doctor
-            db.workingDays.deleteMany({ where: { doctor_id: id } }),
-
-            // La final, sterge inregistrarea doctorului
-            db.doctor.delete({ where: { id } })
+            db.rating.deleteMany({ where: { staff_id: id } }), // Remove all ratings for this doctor
+            db.appointment.deleteMany({ where: { doctor_id: id } }), // Remove all appointments for this doctor
+            db.workingDays.deleteMany({ where: { doctor_id: id } }), // Remove all working days for this doctor
+            db.doctor.delete({ where: { id } }) // Finally, delete the doctor record
           ]);
 
-          // Sterge din Clerk
+          // Attempt to delete the user from Clerk (authentication provider)
           try {
             const client = await clerkClient();
             await client.users.deleteUser(id);
           } catch (clerkError: unknown) {
             console.log("Error deleting user from Clerk (non-critical):", clerkError);
-            // Continuam chiar daca stergerea din Clerk esueaza
+            // Continue even if Clerk deletion fails
           }
         } catch (err: unknown) {
           console.error("Error deleting doctor:", err);
@@ -75,7 +73,7 @@ export async function deleteDataById(
 
       case "staff":
         try {
-          // Sterge mai intai toate inregistrarile asociate
+          // Delete the staff record (add more cascading deletes here if needed)
           await db.$transaction([
             db.staff.delete({ where: { id } })
           ]);
@@ -91,13 +89,13 @@ export async function deleteDataById(
 
       case "patient":
         try {
-          // Sterge mai intai toate inregistrarile asociate
+          // Delete all records associated with this patient in a transaction
           await db.$transaction([
-            db.rating.deleteMany({ where: { patient_id: id } }),
-            db.appointment.deleteMany({ where: { patient_id: id } }),
-            db.payment.deleteMany({ where: { patient_id: id } }),
-            db.medicalRecords.deleteMany({ where: { patient_id: id } }),
-            db.patient.delete({ where: { id } })
+            db.rating.deleteMany({ where: { patient_id: id } }), // Remove all ratings by this patient
+            db.appointment.deleteMany({ where: { patient_id: id } }), // Remove all appointments for this patient
+            db.payment.deleteMany({ where: { patient_id: id } }), // Remove all payments by this patient
+            db.medicalRecords.deleteMany({ where: { patient_id: id } }), // Remove all medical records for this patient
+            db.patient.delete({ where: { id } }) // Finally, delete the patient record
           ]);
         } catch (err: unknown) {
           console.error("Error deleting patient:", err);
@@ -111,6 +109,7 @@ export async function deleteDataById(
 
       case "payment":
         try {
+          // Delete a payment record by its numeric ID
           await db.payment.delete({ where: { id: Number(id) } });
         } catch (err: unknown) {
           console.error("Error deleting payment:", err);
@@ -124,7 +123,7 @@ export async function deleteDataById(
 
       case "service":
         try {
-          // Opțional: poți verifica mai întâi dacă serviciul există
+          // Optionally check if the service exists before deleting
           const existingService = await db.services.findUnique({
             where: { id: parseInt(id) }
           });
@@ -137,14 +136,14 @@ export async function deleteDataById(
             };
           }
 
-          // Șterge serviciul
+          // Delete the service record
           await db.services.delete({
             where: { id: parseInt(id) }
           });
         } catch (err: unknown) {
           console.error("Error deleting service:", err);
 
-          // Poți detecta erori specifice legate de relații (foreign key constraints)
+          // Handle foreign key constraint errors (service is referenced elsewhere)
           if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003') {
             return {
               success: false,
@@ -163,6 +162,7 @@ export async function deleteDataById(
       
       case "payment-method":
         try {
+          // Delete a payment method by its numeric ID (assumes payment-method is stored in payment table)
           await db.payment.delete({
             where: { id: parseInt(id) }
           });
@@ -177,6 +177,7 @@ export async function deleteDataById(
         break;
 
       default:
+        // Handle unknown delete types
         return {
           success: false,
           message: `Unknown delete type: ${deleteType}`,
@@ -184,7 +185,7 @@ export async function deleteDataById(
         };
     }
 
-    // Șterge user-ul din Clerk dacă nu a fost deja șters în case-urile de mai sus
+    // Delete user from Clerk if not already deleted above (for staff and patient)
     if (
       (deleteType === "staff" || deleteType === "patient") &&
       id
@@ -194,7 +195,7 @@ export async function deleteDataById(
         await client.users.deleteUser(id);
       } catch (clerkError: unknown) {
         console.log("Error deleting user from Clerk (non-critical):", clerkError);
-        // Continuăm chiar dacă ștergerea din Clerk eșuează
+        // Continue even if Clerk deletion fails
       }
     }
 
@@ -216,15 +217,20 @@ export async function deleteDataById(
   }
 }
 
+/**
+ * Creates a new review for a staff member by a patient.
+ * Validates input using Zod schema and inserts the review into the database.
+ * Returns a status object indicating success or validation/database errors.
+ */
 export async function createReview(values: ReviewFormValues) {
   console.log("createReview called with:", values);
 
   try {
-    // Validăm datele cu schema Zod
+    // Validate input fields using Zod schema
     const validatedFields = reviewSchema.parse(values);
     console.log("Validated fields:", validatedFields);
 
-    // Creăm review-ul în baza de date
+    // Insert the review into the database
     const result = await db.rating.create({
       data: {
         patient_id: validatedFields.patient_id,
@@ -244,7 +250,7 @@ export async function createReview(values: ReviewFormValues) {
   } catch (error) {
     console.error("Error in createReview:", error);
 
-    // Dacă este o eroare de validare Zod
+    // Handle Zod validation errors
     if (error instanceof z.ZodError) {
       return {
         success: false,
@@ -253,6 +259,7 @@ export async function createReview(values: ReviewFormValues) {
       };
     }
 
+    // Handle other errors (e.g., database errors)
     return {
       success: false,
       message: "Internal Server Error",

@@ -8,26 +8,32 @@ import { format } from "date-fns";
 import Link from "next/link";
 import React from "react";
 
+// Props interface for route params and search params
 interface ParamsProps {
   params: Promise<{ patientId: string }>;
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 const PatientProfile = async (props: ParamsProps) => {
+  // Await route and search params
   const searchParams = await props.searchParams;
   const params = await props.params;
 
+  // Determine patient id (self or specific patient)
   let id = params.patientId;
   let patientId = params.patientId;
   const cat = searchParams?.cat || "medical-history";
 
   if (patientId === "self") {
+    // If viewing own profile, get userId from auth
     const { userId } = await auth();
     id = userId!;
   } else id = patientId;
 
+  // Fetch full patient data from backend
   const { data } = await getPatientFullDataById(id);
 
+  // SmallCard component for displaying patient info fields
   const SmallCard = ({ label, value }: { label: string; value: string }) => (
     <div className="w-full md:w-1/3">
       <span className="text-sm text-gray-500">{label}</span>
@@ -37,9 +43,11 @@ const PatientProfile = async (props: ParamsProps) => {
 
   return (
     <div className="bg-gray-100/60 h-full rounded-xl py-6 px-3 2xl:p-6 flex flex-col lg:flex-row gap-6">
+      {/* Main patient info and medical details */}
       <div className="w-full xl:w-3/4">
         <div className="w-full flex flex-col lg:flex-row gap-4">
           <Card className="bg-white rounded-xl p-4 w-full lg:w-[30%] border-none flex flex-col items-center">
+            {/* Patient profile image and name */}
             <ProfileImage
               url={data?.img!}
               name={data?.first_name + " " + data?.last_name}
@@ -61,6 +69,7 @@ const PatientProfile = async (props: ParamsProps) => {
           </Card>
 
           <Card className="bg-white rounded-xl p-6 w-full lg:w-[70%] border-none space-y-6">
+            {/* Patient details in cards */}
             <div className="flex flex-col md:flex-row md:flex-wrap md:items-center xl:justify-between gap-y-4 md:gap-x-0">
               <SmallCard
                 label="Date of Birth"
@@ -104,6 +113,7 @@ const PatientProfile = async (props: ParamsProps) => {
           </Card>
         </div>
 
+        {/* Medical history or other tabbed content */}
         <div className="mt-10">
           {cat === "medical-history" && (
             <MedicalHistoryContainer patientId={id} />
@@ -113,6 +123,7 @@ const PatientProfile = async (props: ParamsProps) => {
         </div>
       </div>
 
+      {/* Sidebar with quick links and ratings */}
       <div className="w-full xl:w-1/3">
         <div className="bg-white p-4 rounded-md mb-8">
           <h1 className="text-xl font-semibold">Quick Links</h1>
@@ -154,6 +165,7 @@ const PatientProfile = async (props: ParamsProps) => {
           </div>
         </div>
 
+        {/* Patient rating section */}
         <PatientRatingContainer id={id!} />
       </div>
     </div>

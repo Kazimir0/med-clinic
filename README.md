@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Medical Web Platform with Integrated Chatbot
 
-## Getting Started
+A modern web platform for managing medical services in a clinic, offering functionalities for patients, doctors, and administrative staff. Built with modern technologies like Next.js, Prisma, TypeScript, and Clerk for authentication.
 
-First, run the development server:
+## 🩺 Overview
+
+This project is a **full-stack web application** designed to digitize and optimize medical workflows in a clinical environment. The platform streamlines scheduling, patient record management, real-time communication, online payments, and more — tailored to the specific roles of users.
+
+## ✨ Key Features
+
+- 👥 Role-based access for Patients, Doctors, and Admins
+- 📅 Appointment booking and real-time calendar
+- 📁 Medical history tracking and vital signs visualization
+- 💊 Prescription management
+- 💳 Online billing and payments with discounts
+- 📢 Custom notification system (SMS/email/Push)
+- 🤖 Chatbot assistant integration via VoiceFlow
+- 📊 Admin dashboard for user and service management
+
+## 🧠 Technologies Used
+
+| Layer        | Tech Stack                                  |
+|--------------|---------------------------------------------|
+| Frontend     | Next.js, TypeScript, Tailwind CSS           |
+| Backend      | Next.js API Routes, Server Actions          |
+| Database     | PostgreSQL + Prisma ORM                     |
+| Auth         | Clerk                                       |
+| Payments     | Stripe                                      |
+| UI Library   | shadcn/ui                                   |
+| Other libs   | zod, react-hook-form, date-fns, recharts    |
+| IDE          | Visual Studio Code                          |
+| Dev Platform | Windows                                     |
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js >= 18
+- PostgreSQL (you can use [Neon](https://neon.tech) or Docker)
+- Clerk account
+- Stripe account
+
+### Installation
 
 ```bash
+# Clone the repo
+git clone https://github.com/Kazimir0/med-clinic.git
+cd med-platform
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env
+# Then update values in `.env`
+
+# Push Prisma schema to DB
+npx prisma db push
+
+# Open Prisma studio
+npx prisma studio
+
+# Start the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000 in your browser to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+👨‍🎓 Project Info
+This project was developed as part of a Bachelor’s Thesis at:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+University: „Dunărea de Jos” din Galați
+Faculty: Automatică, Calculatoare, Inginerie Electrică și Electronică
+Specialization: CTI
+Student: Cătălin Paraschiv
+Coordinator: Conf. Dr. ing. Dan Munteanu
+Year: 2025

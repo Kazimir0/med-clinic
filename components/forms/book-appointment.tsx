@@ -19,7 +19,6 @@ import {
 import { Button } from "../ui/button";
 import { Divide, UserPen } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
-import { on } from "events";
 import { ProfileImage } from "../profile-image";
 import { CustomInput } from "../custom-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -35,6 +34,8 @@ const TYPES = [
     { label: "ANT", value: "ANT" },
 ];
 
+// BookAppointment provides a sheet dialog form for patients to book a new appointment.
+// Handles form validation, submission, and user feedback.
 export const BookAppointment = ({
     data,
     doctors,
@@ -46,10 +47,12 @@ export const BookAppointment = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
 
+    // Generate available appointment times (8:00 to 17:00, every 30 min)
     const appointmentTimes = generateTimes(8, 17, 30);
     const patientName = `${data?.first_name} ${data?.last_name}`;
     const [physicians, setPhysicians] = useState<Doctor[] | undefined>(doctors);
 
+    // Initialize the form with validation and default values
     const form = useForm<z.infer<typeof AppointmentSchema>>({
         resolver: zodResolver(AppointmentSchema),
         defaultValues: {
@@ -61,7 +64,7 @@ export const BookAppointment = ({
         },
     });
     
-    
+    // Handle form submission for creating a new appointment
     const onSubmit: SubmitHandler<z.infer<typeof AppointmentSchema>> = async (
     values
   ) => {

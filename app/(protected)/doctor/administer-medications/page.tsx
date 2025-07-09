@@ -10,11 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 
 const AdministerMedicationsPage = async () => {
-  // Check user authorization
+  // Check user authorization for this page
   const { userId } = await auth();
   const isAuthorized = await checkRole(["ADMIN", "DOCTOR", "NURSE"]);
 
   if (!userId || !isAuthorized) {
+    // Redirect unauthorized users to home
     redirect("/");
   }
 
@@ -56,8 +57,7 @@ const AdministerMedicationsPage = async () => {
         </Button>
       </div>
 
-
-
+      {/* List of active prescriptions or message if none */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {activePrescriptions.length === 0 ? (
           <Card>
@@ -72,6 +72,7 @@ const AdministerMedicationsPage = async () => {
             <Card key={prescription.id} className="overflow-hidden">
               <CardHeader className="bg-blue-50">
                 <div className="flex items-center gap-3">
+                  {/* Patient profile image and name */}
                   <ProfileImage
                     url={prescription.patient.img || ""}
                     name={`${prescription.patient.first_name} ${prescription.patient.last_name}`}
@@ -92,6 +93,7 @@ const AdministerMedicationsPage = async () => {
                   <span className="font-medium">Issue Date:</span> {format(prescription.created_at, "PPP")}
                 </div>
 
+                {/* List of medications for this prescription */}
                 <h3 className="font-medium mb-2">Medications:</h3>
                 <ul className="space-y-2">
                   {prescription.medications.map((med, index) => (
@@ -107,6 +109,7 @@ const AdministerMedicationsPage = async () => {
                   ))}
                 </ul>
 
+                {/* Button to administer medication for this prescription */}
                 <div className="mt-4 flex justify-end">
                   <Button size="sm" asChild>
                     <Link href={`/doctor/administer-medications/${prescription.id}`}>

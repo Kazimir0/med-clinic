@@ -22,6 +22,9 @@ const ItemCard = ({ label, value }: { label: string; value: string }) => {
     </div>
   );
 };
+
+// VitalSigns component fetches and displays the latest vital signs for a given appointment.
+// It shows temperature, blood pressure, heart rate, weight, height, BMI, and more in a card layout.
 export const VitalSigns = async ({
   id,
   patientId,

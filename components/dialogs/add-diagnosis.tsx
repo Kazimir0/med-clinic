@@ -28,6 +28,8 @@ interface AddDiagnosisProps {
 }
 
 export type DiagnosisFormData = z.infer<typeof DiagnosisSchema>;
+// AddDiagnosis provides a dialog form for doctors to add a new diagnosis for a patient.
+// Handles form validation, submission, and feedback to the user.
 export const AddDiagnosis = ({
     patientId,
     doctorId,
@@ -37,6 +39,7 @@ export const AddDiagnosis = ({
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
+    // Initialize the form with validation and default values
     const form = useForm<DiagnosisFormData>({
         resolver: zodResolver(DiagnosisSchema),
         defaultValues: {
@@ -51,12 +54,11 @@ export const AddDiagnosis = ({
         },
     });
 
+    // Handle form submission for adding a diagnosis
     const handleOnSubmit = async (data: DiagnosisFormData) => {
         try {
             setLoading(true);
-
             const res = await addDiagnosis(data, appointmentId);
-
             if (res.success) {
                 toast.success(res.message);
                 router.refresh();

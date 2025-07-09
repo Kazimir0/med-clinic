@@ -1,6 +1,4 @@
 import { ActionDialog } from '@/components/action-dialog';
-import { ViewAction } from '@/components/action-options';
-import { DoctorForm } from '@/components/forms/doctor-form';
 import { StaffForm } from '@/components/forms/staff-form';
 import { Pagination } from '@/components/pagination';
 import { ProfileImage } from '@/components/profile-image';
@@ -65,6 +63,7 @@ const StaffList = async (props: SearchParamsProps) => {
 
   const renderRow = (item: Staff
   ) => <tr key={item.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-slate-50'>
+    {/* Staff info cell with profile image and name */}
     <td className='flex items-center gap-4 p-4'>
       <ProfileImage url={item?.img!} name={item?.name!} bgColor={item?.colorCode!} textClassName='text-white' />
       <div>
@@ -72,15 +71,19 @@ const StaffList = async (props: SearchParamsProps) => {
         <span className='text-sm capitalize'>{item?.phone}</span>
       </div>
     </td>
+    {/* Role */}
     <td className='hidden md:table-cell'>{item?.role}</td>
+    {/* Phone */}
     <td className='hidden md:table-cell'>{item?.phone}</td>
+    {/* Email */}
     <td className='hidden lg:table-cell'>{item?.email}</td>
+    {/* Joined date */}
     <td className='hidden lg:table-cell'>{format(item.created_at, 'MMMM dd, yyyy')}</td>
 
+    {/* Actions: edit and delete (admin only) */}
     <td>
       <div className='flex items-center gap-2'>
       <ActionDialog type="staff" id={item?.id} data={item} />
-
       {isAdmin && <ActionDialog type="delete" id={item?.id} deleteType="staff" />}
       </div>
     </td>
@@ -90,11 +93,13 @@ const StaffList = async (props: SearchParamsProps) => {
   return (
     <div className='bg-white rounded-xl py-6 px-3 2xl:px-6'>
       <div className='flex items-center justify-between'>
+        {/* Total staff summary */}
         <div className='hidden lg:flex items-center gap-1'>
           <BriefcaseBusiness size={20} className='text-gray-500' />
           <p className='text-2xl font-semibold'>{totalRecords}</p>
           <span className='text-gray-600 text-sm xl:text-base'>Total Staffs</span>
         </div>
+        {/* Search and add staff button (admin only) */}
         <div className='w-full lg:w-fit flex items-center justify-between lg:justify-start gap-2'>
           <SearchInput />
           { isAdmin && <StaffForm /> }
@@ -102,7 +107,9 @@ const StaffList = async (props: SearchParamsProps) => {
       </div>
 
       <div className='mt-4'>
+        {/* Staff table */}
         <Table columns={columns} data={data} renderRow={renderRow} />
+        {/* Pagination controls */}
         {
           totalPages && <Pagination currentPage={currentPage} totalPages={totalPages} totalRecords={totalRecords} limit={DATA_LIMIT} />
         }

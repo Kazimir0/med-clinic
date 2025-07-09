@@ -11,8 +11,6 @@ import { Button } from '../ui/button';
 import { PlusIcon } from 'lucide-react';
 import { Form } from '../ui/form';
 import { CustomInput, SwitchInput } from '../custom-input';
-import { SPECIALIZATION } from '@/utils/settings';
-import { Label } from '../ui/label';
 import { toast } from 'sonner';
 import { createNewDoctor, createNewStaff } from '@/app/actions/admin';
 
@@ -21,11 +19,13 @@ const TYPES = [
     { label: "Laboratory", value: "LAB_TECHNICIAN" },
 ];
 
+// StaffForm provides a sheet dialog form to add a new staff member (nurse or lab technician).
+// Handles form validation, submission, and user feedback.
 export const StaffForm = () => {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
-
+    // Initialize the form with validation and default values
     const form = useForm<z.infer<typeof StaffSchema>>({
         resolver: zodResolver(StaffSchema),
         defaultValues: {
@@ -41,6 +41,7 @@ export const StaffForm = () => {
         }
     });
 
+    // Handle form submission for adding a new staff member
     const handleSubmit = async (values: z.infer<typeof StaffSchema>) => {
         try {
             setIsLoading(true); // Set loading state to true because we are submitting the form

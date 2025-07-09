@@ -5,7 +5,6 @@ import { ReceiptText } from 'lucide-react';
 import React from 'react'
 import { Table } from '../tables/table';
 import { format } from 'date-fns';
-import { ActionDialog } from '../action-dialog';
 import { PatientBills } from '@prisma/client';
 import { Separator } from '../ui/separator';
 import { AddBills } from '../dialogs/add-bills';
@@ -89,6 +88,7 @@ export const BillsContainer = async ({ id }: { id: string }) => {
 
 
     const renderRow = (item: ExtendedBillProps) => {
+        // Renders a single row for the bills table, showing bill/service details
         return (
             <tr
                 key={item.id}
@@ -106,6 +106,7 @@ export const BillsContainer = async ({ id }: { id: string }) => {
                 <td className="hidden lg:table-cell">{item?.unit_cost.toFixed(2)}</td>
                 <td>{item?.total_cost.toFixed(2)}</td>
 
+                {/* Uncomment to enable bill deletion for admins/doctors */}
                 {/* <td className="hidden xl:table-cell">
                     <ActionDialog
                         type="delete"
@@ -120,6 +121,7 @@ export const BillsContainer = async ({ id }: { id: string }) => {
 
     return (
         <div className='bg-white rounded-xl p-2 2xl:p-4'>
+            {/* Header section with title and total records */}
             <div className="w-full flex flex-col md:flex-row md:items-center justify-between mb-6">
                 <div className="">
                     <h1 className="font-semibold text-xl">Patient Bills</h1>
@@ -132,6 +134,7 @@ export const BillsContainer = async ({ id }: { id: string }) => {
                     </div>
                 </div>
 
+                {/* Show add/generate bill actions for admin/doctor */}
                 {((await checkRole("ADMIN")) || (await checkRole("DOCTOR"))) && (
                     <div className="flex items-center mt-5 justify-end">
                         <AddBills id={data?.id} appId={id} servicesData={servicesData} />
@@ -141,10 +144,12 @@ export const BillsContainer = async ({ id }: { id: string }) => {
                 )}
             </div>
 
+            {/* Bills table */}
             <Table columns={columns} renderRow={renderRow} data={billData!} />
 
             <Separator />
 
+            {/* Summary section for bill totals, discount, payable, paid, and unpaid */}
             <div className="flex flex-wrap lg:flex-nowrap items-center justify-between md:text-center py-2 space-y-6">
 
                 <div className="w-[120px]">

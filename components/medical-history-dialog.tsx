@@ -10,6 +10,9 @@ interface DataProps {
   doctor_id: string;
   label: React.ReactNode;
 }
+
+// MedicalHistoryDialog displays a dialog with a button trigger to show a patient's diagnosis details
+// Props: id, patientId, doctor_id, label (button content)
 export const MedicalHistoryDialog = async ({
   id,
   patientId,
@@ -20,6 +23,7 @@ export const MedicalHistoryDialog = async ({
   
   return (
     <Dialog>
+      {/* DialogTrigger renders the button to open the dialog */}
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -28,6 +32,7 @@ export const MedicalHistoryDialog = async ({
           {label}
         </Button>
       </DialogTrigger>
+      {/* DialogContent displays the diagnosis container for the patient and doctor */}
       <DialogContent className="max-h-[90%] max-w-[425px] md:max-w-2xl 2xl:max-w-4xl p-8 overflow-y-auto">
         <DialogTitle>Diagnosis container form</DialogTitle>
         <DiagnosisContainer

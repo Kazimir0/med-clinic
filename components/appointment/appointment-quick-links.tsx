@@ -3,7 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { checkRole } from "@/utils/roles";
 import { ReviewForm } from "../dialogs/review-form";
 
+/**
+ * Displays a set of quick navigation links for appointment-related actions.
+ * - Shows links to charts, appointments, diagnosis, billing, medical history, payments, prescriptions, and vital signs.
+ * - If the user is a patient, also displays a review form for staff feedback.
+ */
 const AppointmentQuickLinks = async ({ staffId }: { staffId: string }) => {
+  // Check if the current user is a patient (for conditional rendering)
   const isPatient = await checkRole("PATIENT");
 
   return (
@@ -12,6 +18,7 @@ const AppointmentQuickLinks = async ({ staffId }: { staffId: string }) => {
         <CardTitle>Quick Links</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-wrap gap-2">
+        {/* Navigation links for different appointment categories */}
         <Link
           href="?cat=charts"
           className="px-4 py-2 rounded-lg bg-gray-100 text-gray-600"
@@ -67,6 +74,7 @@ const AppointmentQuickLinks = async ({ staffId }: { staffId: string }) => {
           Vital Signs
         </Link>
 
+        {/* Only show the review form if the user is a patient */}
         {isPatient && <ReviewForm staffId={staffId} />}
       </CardContent>
     </Card>

@@ -5,8 +5,10 @@ import { calculateAge } from "@/utils";
 import { Calendar, Home, Info, Mail, Phone } from "lucide-react";
 import { format } from "date-fns";
 
+// PatientDetailsCard displays detailed information about a patient in a styled card.
+// It shows the patient's photo, name, contact info, demographics, and medical details.
 export const PatientDetailsCard = ({ data }: { data: Patient | undefined | null }) => {
-    // Verifică dacă există date pentru pacient
+    // If no patient data is provided, show a message indicating information is unavailable.
     if (!data) {
         return (
             <Card className="shadow-none bg-white">
@@ -24,6 +26,7 @@ export const PatientDetailsCard = ({ data }: { data: Patient | undefined | null 
         <Card className="shadow-none bg-white">
             <CardHeader>
                 <CardTitle>Patient Details</CardTitle>
+                {/* Patient profile image, defaults to /user.jpg if not set */}
                 <div className="relative size-20 xl:size-24 rounded-full overflow-hidden">
                     <Image
                         src={data.img || "/user.jpg"}
@@ -35,6 +38,7 @@ export const PatientDetailsCard = ({ data }: { data: Patient | undefined | null 
                     />
                 </div>
 
+                {/* Patient name, email, phone, gender, and age */}
                 <div>
                     <h2 className="text-lg font-semibold">
                         {data.first_name} {data.last_name}
@@ -49,6 +53,7 @@ export const PatientDetailsCard = ({ data }: { data: Patient | undefined | null 
             </CardHeader>
 
             <CardContent className="mt-4 space-y-4">
+                {/* Date of Birth section with calendar icon */}
                 <div className="flex items-start gap-3">
                     <Calendar size={22} className="text-0gray-400" />
                     <div>
@@ -58,6 +63,7 @@ export const PatientDetailsCard = ({ data }: { data: Patient | undefined | null 
                         </p>
                     </div>
                 </div>
+                {/* Address section with home icon */}
                 <div className="flex items-start gap-3">
                     <Home size={22} className="text-0gray-400" />
                     <div>
@@ -67,6 +73,7 @@ export const PatientDetailsCard = ({ data }: { data: Patient | undefined | null 
                         </p>
                     </div>
                 </div>
+                {/* Email section with mail icon */}
                 <div className="flex items-start gap-3">
                     <Mail size={22} className="text-0gray-400" />
                     <div>
@@ -76,6 +83,7 @@ export const PatientDetailsCard = ({ data }: { data: Patient | undefined | null 
                         </p>
                     </div>
                 </div>
+                {/* Phone section with phone icon */}
                 <div className="flex items-start gap-3">
                     <Phone size={22} className="text-0gray-400" />
                     <div>
@@ -85,6 +93,7 @@ export const PatientDetailsCard = ({ data }: { data: Patient | undefined | null 
                         </p>
                     </div>
                 </div>
+                {/* Physician section with info icon (currently hardcoded) */}
                 <div className="flex items-start gap-3">
                     <Info size={22} className="text-0gray-400" />
                     <div>
@@ -94,6 +103,7 @@ export const PatientDetailsCard = ({ data }: { data: Patient | undefined | null 
                         </p>
                     </div>
                 </div>
+                {/* Active medical conditions section */}
                 <div className="flex items-start gap-3">
                     <div>
                         <p className="text-sm text-gray-500">Active Conditions</p>
@@ -102,6 +112,7 @@ export const PatientDetailsCard = ({ data }: { data: Patient | undefined | null 
                         </p>
                     </div>
                 </div>
+                {/* Allergies section */}
                 <div className="flex items-start gap-3">
                     <div>
                         <p className="text-sm text-gray-500">Allergies</p>

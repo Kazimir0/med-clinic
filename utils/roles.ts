@@ -6,13 +6,13 @@ export const checkRole = async (roles: string | string[]) => {
   
   if (!sessionClaims || !sessionClaims.metadata?.role) return false;
   
-  // Asigură-te că rolul este tratat ca un string
+  // Make sure the role is treated as a string
   const userRole = String(sessionClaims.metadata.role).toLowerCase();
   
-  // Transformă roles în array dacă este un string
+  // Transform roles into an array if it's a string
   const rolesArray = Array.isArray(roles) ? roles : [roles];
   
-  // Verifică dacă rolul utilizatorului este în array-ul de roluri permise
+  // Check if the user's role is in the array of permitted roles
   return rolesArray.some(role => String(role).toLowerCase() === userRole);
 };
 
@@ -20,7 +20,7 @@ export const getRole = async () => {
   const { userId, sessionClaims } = await auth();
 
   if (!sessionClaims || !sessionClaims.metadata?.role) {
-    return "patient"; // valoare implicită
+    return "patient"; // default value
   }
 
   return String(sessionClaims.metadata.role).toLowerCase();

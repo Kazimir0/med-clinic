@@ -9,7 +9,7 @@ interface Voiceflow {
   chat: VoiceflowChat;
 }
 
-// Adaugă FormExtension la window
+// Extend the Window interface
 interface Window {
   voiceflow?: Voiceflow;
   FormExtension?: any;

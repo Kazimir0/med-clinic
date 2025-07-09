@@ -92,6 +92,7 @@ const Appointments = async (props: {
                 key={item?.id}
                 className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-slate-50"
             >
+                {/* Patient info cell */}
                 <td className="flex items-center gap-2 md:gap-4 py-2 xl:py-4">
                     <ProfileImage
                         url={item?.patient?.img!}
@@ -106,11 +107,14 @@ const Appointments = async (props: {
                     </div>
                 </td>
 
+                {/* Appointment date */}
                 <td className="hidden md:table-cell">
                     {format(item?.appointment_date, "yyyy-MM-dd")}
                 </td>
+                {/* Appointment time */}
                 <td className="hidden md:table-cell">{item.time}</td>
 
+                {/* Doctor info cell */}
                 <td className="hidden  items-center py-2  md:table-cell">
                     <div className="flex items-center  gap-2 md:gap-4">
                         <ProfileImage
@@ -129,9 +133,11 @@ const Appointments = async (props: {
                     </div>
                 </td>
 
+                {/* Status indicator */}
                 <td className="hidden xl:table-cell">
                     <AppointmentStatusIndicator status={item.status!} />
                 </td>
+                {/* Actions: view and options */}
                 <td>
                     <div className="flex items-center gap-2">
                         <ViewAppointment id={item?.id.toString()} />
@@ -151,6 +157,7 @@ const Appointments = async (props: {
     return (
         <div className="bg-white rounded-xl p-2 md:p-4 2xl:p-6">
             <div className="flex items-center justify-between">
+                {/* Total appointments summary */}
                 <div className="hidden lg:flex items-center gap-1">
                     <BriefcaseBusiness size={20} className="text-gray-500" />
                     <p className="text-2xl font-semibold">{totalRecord ?? 0}</p>
@@ -159,6 +166,7 @@ const Appointments = async (props: {
                     </span>
                 </div>
 
+                {/* Search and new appointment button (for patients) */}
                 <div className="w-full lg:w-fit flex items-center justify-between lg:justify-start gap-2">
                     <SearchInput />
 
@@ -167,8 +175,10 @@ const Appointments = async (props: {
             </div>
 
             <div className="mt-6">
+                {/* Appointments table */}
                 <Table columns={columns} renderRow={renderItem} data={data} />
 
+                {/* Pagination if there are records */}
                 {data?.length > 0 && (
                     <Pagination
                         totalRecords={totalRecord!}

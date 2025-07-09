@@ -4,6 +4,11 @@ import { createNotification } from "@/utils/server-notifications";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+/**
+ * GET: Returns the latest 50 medical records for admin users.
+ * - Checks authentication and admin role.
+ * - Includes patient info and diagnosis for each record.
+ */
 export async function GET() {
   try {
     // Check if the user is authenticated and has admin role
@@ -17,6 +22,7 @@ export async function GET() {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    // Fetch the latest 50 medical records, including patient and diagnosis info
     const medicalRecords = await db.medicalRecords.findMany({
       take: 50,
       orderBy: { created_at: "desc" },
@@ -44,7 +50,12 @@ export async function GET() {
   }
 }
 
-// POST method for creating a new medical record
+/**
+ * POST: Creates a new medical record for a patient.
+ * - Only admins and doctors are authorized.
+ * - Accepts patient, doctor, and record details in the request body.
+ * - Sends a notification to the patient after creation.
+ */
 export async function POST(request: Request) {
   try {
     const { userId } = await auth();
@@ -52,7 +63,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check user role
+    // Check user role (admin or doctor)
     const isAdmin = await checkRole("ADMIN");
     const isDoctor = await checkRole("DOCTOR");
     const isAuthorized = isAdmin || isDoctor;
@@ -61,11 +72,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    // Parse request body for medical record data
     const data = await request.json();
     const { patient_id, doctor_id, type, diagnosis, vital_signs, notes, ...otherData } = data;
 
-
-    // Create medical record
+    // Create the medical record in the database
     const medicalRecord = await db.medicalRecords.create({
       data: {
         patient_id,
@@ -77,11 +88,11 @@ export async function POST(request: Request) {
       }
     });
 
+    // Log patient and doctor IDs for debugging
     console.log("Patient ID from request:", patient_id);
     console.log("Doctor ID from request:", doctor_id);
 
-    
-    // Create notification for patient
+    // Create notification for the patient about the new record
     try {
       await createNotification({
         title: "New medical record",
@@ -96,8 +107,6 @@ export async function POST(request: Request) {
     } catch (notificationError) {
       console.error("Failed to create patient notification:", notificationError);
     }
-    
-    
 
     return NextResponse.json(medicalRecord);
   } catch (error) {
@@ -106,7 +115,5 @@ export async function POST(request: Request) {
       { error: "Failed to create medical record" },
       { status: 500 }
     );
-    
   }
-  
 }

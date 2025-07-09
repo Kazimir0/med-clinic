@@ -56,11 +56,12 @@ interface ExtendedProps extends MedicalRecords {
 }
 
 const MedicalRecordsPage = async (props: SearchParamsProps) => {
+    // Get search params for pagination and filtering
     const searchParams = await props.searchParams;
     const page = (searchParams?.p || "1") as string; // Current page number for pagination
     const searchQuery = (searchParams?.q || "") as string; // Search query for filtering doctors
 
-    // Fetch the information
+    // Fetch the medical records from backend
     const { data, totalPages, totalRecords, currentPage } = await getMedicalRecords({
         page,
         search: searchQuery
@@ -70,6 +71,7 @@ const MedicalRecordsPage = async (props: SearchParamsProps) => {
 
     if (!data) return null;
 
+    // Helper to fetch doctor name by id (async component)
     const DoctorName = async ({ doctorId }: { doctorId: string }) => {
         try {
             const doctor = await db.doctor.findUnique({
@@ -77,24 +79,27 @@ const MedicalRecordsPage = async (props: SearchParamsProps) => {
                 select: { name: true }
             });
 
-            return doctor?.name || "Nespecificat";
+            return doctor?.name || "Unspecified";
         } catch (error) {
             console.error("Error fetching doctor name:", error);
-            return "Nespecificat";
+            return "Unspecified";
         }
     };
 
+    // Render a row for each medical record
     const renderRow = (item: ExtendedProps) => {
         const name = item?.patient?.first_name + " " + item?.patient?.last_name;
         const patient = item?.patient;
 
         return (
             <tr key={item.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-slate-50'>
+                {/* Record number */}
                 <td>
                     <div>
                         <span className='hidden md:table-cell'>{item?.id}</span>
                     </div>
                 </td>
+                {/* Patient info */}
                 <td className='flex items-center gap-4 p-4'>
                     <ProfileImage url={item?.patient?.img!} name={name} bgColor={patient?.colorCode!} textClassName='text-white' />
                     <div>
@@ -102,22 +107,26 @@ const MedicalRecordsPage = async (props: SearchParamsProps) => {
                         <span className='text-sm capitalize'>{patient?.gender}</span>
                     </div>
                 </td>
+                {/* Date and time of record */}
                 <td className='hidden md:table-cell'>
                     {
                         format(item?.created_at, 'MMMM dd, yyyy HH:mm:ss')
                     }
                 </td>
 
+                {/* Doctor name */}
                 <td className='hidden 2xl:table-cell'>
                     <DoctorName doctorId={item?.doctor_id} />
                 </td>
 
+                {/* Diagnosis count or message */}
                 <td className='hidden lg:table-cell pl-8'>
                     {item?.diagnosis?.length === 0
                         ? <span className='text-gray-400 italic'>No diagnosis found</span> : <span>{item?.diagnosis.length}</span>
                     }
                 </td>
 
+                {/* View action */}
                 <td>
                     <ViewAction href={`/record/appointments/${item?.appointment_id}`} />
                 </td>
@@ -129,22 +138,23 @@ const MedicalRecordsPage = async (props: SearchParamsProps) => {
     return (
         <div className='bg-white rounded-xl py-6 px-3 2xl:px-6'>
             <div className='flex items-center justify-between'>
+                {/* Total records summary */}
                 <div className='hidden lg:flex items-center gap-1'>
                     <BriefcaseBusiness size={20} className='text-gray-500' />
                     <p className='text-2xl font-semibold'>{totalRecords}</p>
                     <span className='text-gray-600 text-sm xl:text-base'>Total records</span>
                 </div>
+                {/* Search input */}
                 <div className='w-full lg:w-fit flex items-center justify-between lg:justify-start gap-2'>
                     <SearchInput />
                 </div>
             </div>
 
             <div className='mt-4'>
-
+                {/* Medical records table */}
                 <Table columns={columns} data={data} renderRow={renderRow} />
-
+                {/* Pagination controls */}
                 <Pagination currentPage={currentPage} totalPages={totalPages} totalRecords={totalRecords} limit={DATA_LIMIT} />
-
             </div>
 
         </div>

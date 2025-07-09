@@ -146,7 +146,6 @@ export async function getDoctorById(id: string) {
   }
 }
 
-
 export async function getRatingById(id: string) {
   try {
     const data = await db.rating.findMany({
@@ -175,7 +174,6 @@ export async function getRatingById(id: string) {
     return { success: false, message: "Internal server error", status: 500 };
   }
 }
-
 
 export async function getAllDoctors({ page, limit, search }: { page: number | string, limit?: number | string, search?: string }) {
   try {

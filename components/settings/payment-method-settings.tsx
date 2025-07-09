@@ -1,13 +1,8 @@
 import { CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Table } from "../tables/table";
-import { ActionDialog } from "../action-dialog";
-import { checkRole } from "@/utils/roles";
-import { PaymentMethod } from "@prisma/client";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { getPaymentMethods } from "@/app/actions/admin";
 import { EditPaymentMethod } from "../dialogs/edit-payment";
-import { AddPaymentMethod } from "../dialogs/add-payment";
 
+// Sample static data for payment methods
 const paymentMethods = [
   {
     id: 1,
@@ -21,6 +16,7 @@ const paymentMethods = [
   }
 ];
 
+// Column configuration for the payment methods table
 const columns = [
   {
     header: "ID",
@@ -39,7 +35,10 @@ const columns = [
   },
 ];
 
+// PaymentMethodSettings displays a table of available payment methods for the platform.
+// Payment methods are static and can be viewed but not edited here.
 export const PaymentMethodSettings = async () => {
+  // Render a table row for each payment method
   const renderRow = (item: any) => (
     <tr
       key={item.id}
@@ -72,12 +71,13 @@ export const PaymentMethodSettings = async () => {
       </CardHeader>
 
       <CardContent>
+        {/* Info box about payment methods */}
         <div className="mb-4 bg-blue-50 border border-blue-200 rounded-md p-4">
           <p className="text-sm text-blue-800">
             Payment methods are configured statically in the system. Currently, the platform supports cash payments and card payments (via Stripe integration).
           </p>
         </div>
-        
+        {/* Table of payment methods */}
         <Table columns={columns} renderRow={renderRow} data={paymentMethods} />
       </CardContent>
     </>

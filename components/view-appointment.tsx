@@ -18,13 +18,16 @@ import { auth } from "@clerk/nextjs/server";
 import { checkRole } from "@/utils/roles";
 import { AppointmentAction } from "./appointment-action";
 
+// ViewAppointment displays a dialog with detailed information about a specific appointment
+// Shows patient info, appointment details, doctor info, and allows actions for admins/doctors
 export const ViewAppointment = async ({ id }: { id: string | undefined }) => {
   const { data } = await getAppointmentById(Number(id));
   const { userId } = await auth();
 
-  if (!data) return null;
+  if (!data) return null; // If no appointment found, render nothing
   return (
     <Dialog>
+      {/* Button to open the appointment details dialog */}
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -35,6 +38,7 @@ export const ViewAppointment = async ({ id }: { id: string | undefined }) => {
       </DialogTrigger>
       <DialogContent className="max-w-[425px] max-h-[95%] md:max-w-2xl 2xl:max-w-3xl p-8 overflow-y-auto">
         <>
+          {/* Dialog header with title and creation date */}
           <DialogHeader>
             <DialogTitle>Patient Appointment</DialogTitle>
             <DialogDescription>
@@ -42,6 +46,7 @@ export const ViewAppointment = async ({ id }: { id: string | undefined }) => {
               {formatDateTime(data?.created_at.toString())}
             </DialogDescription>
           </DialogHeader>
+          {/* Show cancellation reason if appointment is cancelled */}
           {data?.status === "CANCELLED" && (
             <div className="bg-yellow-100 p-4 mt-4 rounded-md">
               <span className="font-semibold text-sm">
@@ -53,6 +58,7 @@ export const ViewAppointment = async ({ id }: { id: string | undefined }) => {
             </div>
           )}
           <div className="grid gap-4 py-4">
+            {/* Patient personal information */}
             <p className="w-fit bg-blue-100 text-blue-600 py-1 rounded text-xs md:text-sm">
               Personal Information
             </p>
@@ -89,30 +95,31 @@ export const ViewAppointment = async ({ id }: { id: string | undefined }) => {
               </div>
             </div>
 
+            {/* Appointment details section */}
             <p className="w-fit bg-blue-100 text-blue-600 py-1 rounded text-xs md:text-sm">
               Appointment Details
             </p>
-
             <div className="grid grid-cols-3 gap-10">
-              {/* 1 */}
+              {/* Date */}
               <div>
                 <span className="text-sm text-gray-500">Date</span>
                 <p className="text-sm text-gray-600">
                   {format(data?.appointment_date, "MMMM dd, yyyy")}
                 </p>
               </div>
-              {/* 2 */}
+              {/* Time */}
               <div>
                 <span className="text-sm text-gray-500">Time</span>
                 <p className="text-sm text-gray-600">{data?.time}</p>
               </div>
-              {/* 3 */}
+              {/* Status */}
               <div>
                 <span className="text-sm text-gray-500">Status</span>
                 <AppointmentStatusIndicator status={data?.status} />
               </div>
             </div>
 
+            {/* Optional note from patient */}
             {data?.note && (
               <div>
                 <span className="text-sm text-gray-500">Note from patient</span>
@@ -120,6 +127,7 @@ export const ViewAppointment = async ({ id }: { id: string | undefined }) => {
               </div>
             )}
 
+            {/* Doctor information section */}
             <p className="w-fit bg-blue-100 text-blue-600 py-1 px-2 rounded text-xs md:text-sm mt-16">
               Physician Information
             </p>
@@ -142,6 +150,7 @@ export const ViewAppointment = async ({ id }: { id: string | undefined }) => {
               </div>
             </div>
 
+            {/* Show appointment actions for admin or doctor */}
              {((await checkRole("ADMIN")) || data?.doctor_id === userId) && (
               <>
                 <p className="w-fit bg-blue-100 text-blue-600 py-1 px-2 rounded text-xs md:text-sm mt-4">

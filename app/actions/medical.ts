@@ -6,15 +6,24 @@ import { checkRole } from "@/utils/roles";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
+/**
+ * Adds a diagnosis for a patient appointment.
+ * - Validates input data using Zod schema.
+ * - If no medical record exists, creates one for the patient and doctor.
+ * - Associates the diagnosis with the correct medical record.
+ * Returns a status object indicating success or failure.
+ */
 export const addDiagnosis = async (
     data: DiagnosisFormData,
     appointmentId: string
 ) => {
     try {
+        // Validate the diagnosis form data
         const validatedData = DiagnosisSchema.parse(data);
 
         let medicalRecord = null;
 
+        // If no medical record ID is provided, create a new medical record for this appointment
         if (!validatedData.medical_id) {
             medicalRecord = await db.medicalRecords.create({
                 data: {
@@ -25,6 +34,7 @@ export const addDiagnosis = async (
             });
         }
 
+        // Use the provided or newly created medical record ID
         const med_id = validatedData.medical_id || medicalRecord?.id;
         await db.diagnosis.create({
             data: {
@@ -46,6 +56,14 @@ export const addDiagnosis = async (
     }
 };
 
+/**
+ * Adds a new bill for a patient appointment and service.
+ * - Checks if the user is an admin or doctor.
+ * - Validates bill data.
+ * - Creates a new bill if one does not exist for the appointment.
+ * - Associates the bill with the service and patient.
+ * Returns a status object indicating success or failure.
+ */
 export async function addNewBill(data: any) {
   try {
     const isAdmin = await checkRole("ADMIN");
@@ -58,11 +76,12 @@ export async function addNewBill(data: any) {
       };
     }
 
+    // Validate bill data using Zod schema
     const isValidData = PatientBillSchema.safeParse(data);
-
     const validatedData = isValidData.data;
     let bill_info = null;
 
+    // If no bill exists for this appointment, create one
     if (!data?.bill_id || data?.bill_id === "undefined") {
       const info = await db.appointment.findUnique({
         where: { id: Number(data?.appointment_id)! },
@@ -98,6 +117,7 @@ export async function addNewBill(data: any) {
       };
     }
 
+    // Create the patient bill record for the service
     await db.patientBills.create({
       data: {
         bill_id: Number(bill_info?.id),
@@ -120,16 +140,25 @@ export async function addNewBill(data: any) {
   }
 }
 
+/**
+ * Generates a bill by updating payment details for an appointment.
+ * - Validates payment data.
+ * - Calculates discount amount and updates the payment record.
+ * - Marks the appointment as completed.
+ * Returns a status object indicating success or failure.
+ */
 export async function generateBill(data: any) {
   try {
+    // Validate payment data using Zod schema
     const isValidData = PaymentSchema.safeParse(data);
-
     const validatedData = isValidData.data;
 
+    // Calculate the discount amount
     const discountAmount =
       (Number(validatedData?.discount) / 100) *
       Number(validatedData?.total_amount);
 
+    // Update the payment record with bill details
     const res = await db.payment.update({
       data: {
         bill_date: validatedData?.bill_date,
@@ -139,6 +168,7 @@ export async function generateBill(data: any) {
       where: { id: Number(validatedData?.id) },
     });
 
+    // Mark the appointment as completed
     await db.appointment.update({
       data: {
         status: "COMPLETED",
@@ -156,8 +186,15 @@ export async function generateBill(data: any) {
   }
 }
 
+/**
+ * Updates a service's details (name, description, price).
+ * - Validates input fields using Zod schema.
+ * - Checks if the service exists before updating.
+ * Returns a status object indicating success or failure.
+ */
 export async function updateService(id: number, values: any) {
   try {
+    // Validate service fields
     const validatedFields = ServicesSchema.safeParse(values);
 
     if (!validatedFields.success) {
@@ -170,7 +207,7 @@ export async function updateService(id: number, values: any) {
 
     const { service_name, description, price } = validatedFields.data;
 
-    // Verifică dacă serviciul există
+    // Check if the service exists before updating
     const existingService = await db.services.findUnique({
       where: { id },
     });
@@ -183,7 +220,7 @@ export async function updateService(id: number, values: any) {
       };
     }
 
-    // Actualizează serviciul
+    // Update the service record
     await db.services.update({
       where: { id },
       data: {
@@ -206,6 +243,14 @@ export async function updateService(id: number, values: any) {
   }
 }
 
+/**
+ * Records the administration of medications for a prescription.
+ * - Authenticates the user (must be logged in).
+ * - Creates a medication administration record for each medication.
+ * - If all medications are administered, marks the prescription as completed.
+ * - Revalidates relevant cache paths for UI updates.
+ * Returns a status object indicating success or failure.
+ */
 export async function recordMedicationAdministration(
   prescriptionId: number,
   medicationIds: number[],
@@ -218,7 +263,7 @@ export async function recordMedicationAdministration(
       throw new Error("Unauthorized");
     }
     
-    // Creează înregistrări de administrare pentru fiecare medicament
+    // Create administration records for each medication
     const administrations = await Promise.all(
       medicationIds.map(async (medicationId) => {
         return db.medicationAdministration.create({
@@ -232,7 +277,7 @@ export async function recordMedicationAdministration(
       })
     );
     
-    // Verifică dacă toate medicamentele din prescripție au fost administrate
+    // Check if all medications in the prescription have been administered
     const prescription = await db.prescription.findUnique({
       where: { id: prescriptionId },
       include: {
@@ -241,7 +286,7 @@ export async function recordMedicationAdministration(
       }
     });
     
-    // Dacă toate medicamentele au fost administrate, marchează prescripția ca fiind completată
+    // If all medications are administered, mark the prescription as completed
     if (prescription && prescription.medications.every(med => 
       prescription.administrations.some(adm => adm.medication_id === med.id)
     )) {
@@ -251,6 +296,7 @@ export async function recordMedicationAdministration(
       });
     }
     
+    // Revalidate cache for relevant UI paths
     revalidatePath("/doctor/administer-medications");
     revalidatePath(`/doctor/administer-medications/${prescriptionId}`);
     revalidatePath("/patient/prescription");
@@ -263,57 +309,14 @@ export async function recordMedicationAdministration(
   }
 }
 
-// export async function createPrescription(data: {
-//   patientId: string;
-//   medications: Array<{
-//     name: string;
-//     dosage: string;
-//     frequency: string;
-//     instructions?: string;
-//   }>;
-//   notes?: string;
-// }) {
-//   try {
-//     const { userId } = await auth();
-    
-//     if (!userId) {
-//       throw new Error("Unauthorized");
-//     }
-    
-//     // Verifică dacă utilizatorul actual este doctor
-//     const isDoctor = await checkRole(["ADMIN", "DOCTOR"]);
-//     if (!isDoctor) {
-//       return { error: "Unauthorized. Only doctors can create prescriptions." };
-//     }
-
-//     // Creează prescripția cu medicamentele asociate
-//     const prescription = await db.prescription.create({
-//       data: {
-//         patient_id: data.patientId,
-//         doctor_id: userId,
-//         notes: data.notes || undefined,
-//         status: "ACTIVE",
-//         medications: {
-//           create: data.medications.map(med => ({
-//             name: med.name,
-//             dosage: med.dosage,
-//             frequency: med.frequency,
-//             instructions: med.instructions || undefined
-//           }))
-//         }
-//       }
-//     });
-    
-//     revalidatePath("/doctor/prescriptions");
-    
-//     return { success: true, prescriptionId: prescription.id };
-    
-//   } catch (error) {
-//     console.error("Error creating prescription:", error);
-//     return { error: "Failed to create prescription" };
-//   }
-// }
-
+/**
+ * Creates a new prescription for a patient with associated medications.
+ * - Authenticates the user (must be a doctor or admin).
+ * - Validates user role.
+ * - Creates the prescription and associated medication records.
+ * - Revalidates cache for relevant UI paths.
+ * Returns a status object indicating success or failure.
+ */
 export async function createPrescription(data: {
   patientId: string;
   medications: Array<{
@@ -331,13 +334,13 @@ export async function createPrescription(data: {
       throw new Error("Unauthorized");
     }
     
-    // Verifică dacă utilizatorul actual este doctor
+    // Check if the current user is a doctor or admin
     const isDoctor = await checkRole(["ADMIN", "DOCTOR"]);
     if (!isDoctor) {
       return { error: "Unauthorized. Only doctors can create prescriptions." };
     }
 
-    // Creează prescripția cu medicamentele asociate
+    // Create the prescription with associated medications
     const prescription = await db.prescription.create({
       data: {
         patient_id: data.patientId,
@@ -355,6 +358,7 @@ export async function createPrescription(data: {
       }
     });
     
+    // Revalidate cache for relevant UI paths
     revalidatePath("/doctor/prescriptions");
     revalidatePath("/doctor/administer-medications");
     

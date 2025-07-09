@@ -23,6 +23,9 @@ interface ActionDialogProps {
     data?: any;
     deleteType?: "doctor" | "staff" | "patient" | "payment" | "bill" | "service" |"payment-method";
 }
+
+// ActionDialog provides a dialog for delete confirmation or staff info display.
+// Handles deletion of records and displays staff details in a modal.
 export const ActionDialog = ({
     id,
     data,
@@ -32,13 +35,13 @@ export const ActionDialog = ({
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
+    // Delete confirmation dialog
     if (type === "delete") {
+        // Handles the delete action for a record
         const handleDelete = async () => {
             try {
                 setLoading(true);
-
                 const res = await deleteDataById(id, deleteType!);
-
                 if (res.success) {
                     toast.success("Record deleted successfully");
                     router.refresh();
@@ -100,6 +103,7 @@ export const ActionDialog = ({
         );
     }
 
+    // Staff info dialog
     if (type === "staff") {
         return (
             <Dialog>
@@ -116,7 +120,6 @@ export const ActionDialog = ({
                     <DialogTitle className="text-lg text-gray-600 font-semibold mb-4">
                         Staff Information
                     </DialogTitle>
-
                     <div className="flex justify-between">
                         <div className="flex gap-3 items-center">
                             <ProfileImage
@@ -126,7 +129,6 @@ export const ActionDialog = ({
                                 bgColor={data?.colorCode!}
                                 textClassName="xl:text-2xl"
                             />
-
                             <div className="flex flex-col">
                                 <p className="text-xl font-semibold">{data?.name}</p>
                                 <span className="text-gray-600 text-sm md:text-base capitalize">
@@ -136,18 +138,15 @@ export const ActionDialog = ({
                             </div>
                         </div>
                     </div>
-
                     <div className="mt-10 space-y-6">
                         <div className="flex flex-col md:flex-row md:flex-wrap md:items-center  gap-y-4 md:gap-x-0 xl:justify-between">
                             {/* <SmallCard label="Full Name" value={data?.name} /> */}
                             <SmallCard label="Email Address" value={data?.email} />
                             <SmallCard label="Phone Number" value={data?.phone} />
                         </div>
-
                         <div>
                             <SmallCard label="Address" value={data?.address || "N/A"} />
                         </div>
-
                         <div className="flex flex-col md:flex-row md:flex-wrap md:items-center  gap-y-4 md:gap-x-0 xl:justify-between">
                             <SmallCard label="Role" value={data?.role} />
                             <SmallCard label="Department" value={data?.department || "N/A"} />
@@ -161,5 +160,6 @@ export const ActionDialog = ({
             </Dialog>
         );
     }
+    // Return null if type is not handled
     return null;
 };

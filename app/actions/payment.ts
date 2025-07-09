@@ -5,11 +5,18 @@ import { createNotification } from "@/utils/server-notifications";
 import { PaymentMethod, PaymentStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
+/**
+ * Processes a payment for a bill by its ID and payment method.
+ * - Checks if the payment exists and if the bill is already paid.
+ * - Updates the payment record to mark it as paid in full.
+ * - Revalidates the appointment path to update the UI.
+ * Returns a status object and the updated payment data.
+ */
 export async function processPayment(paymentId: string, method: "CASH" | "CARD") {
   try {
     const paymentIdNum = parseInt(paymentId);
     
-    // Verifică dacă plata există
+    // Check if the payment exists
     const payment = await db.payment.findUnique({
       where: { id: paymentIdNum }
     });
@@ -21,7 +28,7 @@ export async function processPayment(paymentId: string, method: "CASH" | "CARD")
       };
     }
 
-    // Calculează suma datorată
+    // Calculate the amount due for the bill
     const amountDue = payment.total_amount - payment.discount - payment.amount_paid;
     
     if (amountDue <= 0) {
@@ -31,17 +38,17 @@ export async function processPayment(paymentId: string, method: "CASH" | "CARD")
       };
     }
 
-    // Actualizează plata în baza de date
+    // Update the payment record to mark as paid
     const updatedPayment = await db.payment.update({
       where: { id: paymentIdNum },
       data: {
         payment_method: method as PaymentMethod,
-        amount_paid: payment.total_amount - payment.discount, // Plătește întreaga sumă
+        amount_paid: payment.total_amount - payment.discount, // Pay the full remaining amount
         status: PaymentStatus.PAID,
       }
     });
 
-    // Revalidează calea pentru a actualiza UI-ul
+    // Revalidate the appointment path to update the UI
     revalidatePath(`/record/appointments/${payment.appointment_id}`);
     
     return {
@@ -57,12 +64,20 @@ export async function processPayment(paymentId: string, method: "CASH" | "CARD")
   }
 }
 
+/**
+ * Marks a payment as completed (used for Stripe or manual payments).
+ * - Updates the payment record as paid and stores the Stripe session ID if provided.
+ * - Sends notifications to both patient and doctor about the payment.
+ * - Revalidates the appointment path to update the UI.
+ * Returns a status object indicating success or failure.
+ */
 export async function markPaymentCompleted(
   paymentId: string, 
   stripeSessionId: string, 
   paymentMethod: 'CASH' | 'CARD'
 ) {
   try {
+    // Find the payment and include related appointment, doctor, and patient
     const payment = await db.payment.findUnique({
       where: { id: parseInt(paymentId) },
       include: {
@@ -79,8 +94,10 @@ export async function markPaymentCompleted(
       return { success: false, message: 'Payment not found' };
     }
 
+    // Calculate the amount due for notification
     const amountDue = payment.total_amount - payment.discount - payment.amount_paid;
     
+    // Update the payment record as paid and store Stripe session ID
     const updatedPayment = await db.payment.update({
       where: { id: parseInt(paymentId) },
       data: {
@@ -91,10 +108,10 @@ export async function markPaymentCompleted(
       }
     });
     
-    // Creează notificarea pentru pacient
+    // Create notification for the patient
     await createNotification({
-      title: "Plată finalizată",
-      message: `Plata în valoare de ${amountDue.toFixed(2)} RON pentru programarea din ${new Date(payment.appointment.appointment_date).toLocaleDateString()} a fost procesată cu succes.`,
+      title: "Payment Completed",
+      message: `A payment of ${amountDue.toFixed(2)} RON for the appointment on ${new Date(payment.appointment.appointment_date).toLocaleDateString()} was successfully processed.`,
       type: "payment",
       userId: payment.appointment.patient.id,
       link: `/record/appointments/${payment.appointment_id}?cat=payments`,
@@ -105,10 +122,10 @@ export async function markPaymentCompleted(
       }
     });
     
-    // Creează notificarea pentru doctor
+    // Create notification for the doctor
     await createNotification({
-      title: "Plată nouă primită",
-      message: `Pacientul ${payment.appointment.patient.first_name} ${payment.appointment.patient.last_name} a efectuat o plată de ${amountDue.toFixed(2)} RON pentru programarea din ${new Date(payment.appointment.appointment_date).toLocaleDateString()}.`,
+      title: "New Payment Received",
+      message: `Patient ${payment.appointment.patient.first_name} ${payment.appointment.patient.last_name} made a payment of ${amountDue.toFixed(2)} RON for the appointment on ${new Date(payment.appointment.appointment_date).toLocaleDateString()}.`,
       type: "payment",
       userId: payment.appointment.doctor.id,
       link: `/record/appointments/${payment.appointment_id}?cat=payments`,
@@ -119,6 +136,7 @@ export async function markPaymentCompleted(
       }
     });
 
+    // Revalidate the appointment path to update the UI
     revalidatePath(`/record/appointments/${payment.appointment_id}`);
     return { success: true };
   } catch (error) {

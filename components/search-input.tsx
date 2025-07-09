@@ -2,46 +2,47 @@
 
 import { Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useCallback, useState, useEffect } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 
+// SearchInput provides a search bar that updates the URL query string and triggers navigation
+// Handles input state, query string management, and automatic reset on clear
 const SearchInput = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const [searchValue, setSearchValue] = useState("");
 
-  // Preluăm valoarea inițială din query params (dacă există)
+  // Set initial value from query params (if present)
   useEffect(() => {
     const currentSearchParam = searchParams.get("q") || "";
     setSearchValue(currentSearchParam);
   }, [searchParams]);
 
+  // Helper to create a query string with the updated search value
   const createQueryString = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      
       if (value) {
         params.set(name, value);
       } else {
-        params.delete(name); // Eliminăm parametrul când valoarea este goală
+        params.delete(name); // Remove param if value is empty
       }
-
       return params.toString();
     },
     [searchParams]
   );
 
+  // Handle form submit to trigger search
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     router.push(pathname + (searchValue ? "?" + createQueryString("q", searchValue) : ""));
   };
 
-  // Funcția care se declanșează la schimbarea valorii în input
+  // Handle input change and auto-reset if cleared
   const handleInputChange = (value: string) => {
     setSearchValue(value);
-    
-    // Dacă valoarea devine goală, resetăm căutarea automat
-      if (value === "" && searchParams.has("q")) {
+    // If cleared, remove the search param and reset results
+    if (value === "" && searchParams.has("q")) {
       const params = new URLSearchParams(searchParams.toString());
       params.delete("q");
       const newQueryString = params.toString();

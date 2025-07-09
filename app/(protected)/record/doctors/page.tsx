@@ -61,6 +61,7 @@ const DoctorsList = async (props: SearchParamsProps) => {
   const isAdmin = await checkRole('ADMIN'); // if the user is an admin, they can see the list of doctors
 
   const renderRow = (item: Doctor) => <tr key={item.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-slate-50'>
+    {/* Doctor info cell with profile image and name */}
     <td className='flex items-center gap-4 p-4'>
       <ProfileImage url={item?.img!} name={item?.name!} bgColor={item?.colorCode!} textClassName='text-white' />
       <div>
@@ -68,11 +69,16 @@ const DoctorsList = async (props: SearchParamsProps) => {
         <span className='text-sm capitalize'>{item?.specialization}</span>
       </div>
     </td>
+    {/* License number */}
     <td className='hidden md:table-cell'>{item?.license_number}</td>
+    {/* Phone number */}
     <td className='hidden md:table-cell'>{item?.phone}</td>
+    {/* Email address */}
     <td className='hidden lg:table-cell'>{item?.email}</td>
+    {/* Joined date */}
     <td className='hidden lg:table-cell'>{format(item.created_at, 'MMMM dd, yyyy')}</td>
 
+    {/* Actions: view and delete (admin only) */}
     <td>
       <div className='flex items-center gap-2'>
       <ViewAction href={`doctors/${item?.id}`} />
@@ -85,11 +91,13 @@ const DoctorsList = async (props: SearchParamsProps) => {
   return (
     <div className='bg-white rounded-xl py-6 px-3 2xl:px-6'>
       <div className='flex items-center justify-between'>
+        {/* Total doctors summary */}
         <div className='hidden lg:flex items-center gap-1'>
           <BriefcaseBusiness size={20} className='text-gray-500' />
           <p className='text-2xl font-semibold'>{totalRecords}</p>
           <span className='text-gray-600 text-sm xl:text-base'>Total Doctors</span>
         </div>
+        {/* Search and add doctor button (admin only) */}
         <div className='w-full lg:w-fit flex items-center justify-between lg:justify-start gap-2'>
           <SearchInput />
           {/* only the admin can add doctors, first check if is admin*/}
@@ -98,6 +106,7 @@ const DoctorsList = async (props: SearchParamsProps) => {
       </div>
 
       <div className='mt-4'>
+        {/* Doctors table */}
         <Table columns={columns} data={data} renderRow={renderRow} />
         {
           totalPages && <Pagination currentPage={currentPage} totalPages={totalPages} totalRecords={totalRecords} limit={DATA_LIMIT} />

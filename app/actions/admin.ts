@@ -5,15 +5,12 @@ import { DoctorSchema, ServicesSchema, StaffSchema, WorkingDaysSchema } from "@/
 import { generateRandomColor } from "@/utils";
 import { checkRole } from "@/utils/roles";
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import z from "zod";
 
 export async function createNewDoctor(data: any) {
   try {
     const values = DoctorSchema.safeParse(data);
-
     const workingDaysValues = WorkingDaysSchema.safeParse(data?.work_schedule);
 
-    // console.log("DATA PRIMITA:", data);
     // If values and workingDaysValues are not valid, return an error message
     if (!values.success || !workingDaysValues.success) {
       return {
@@ -23,11 +20,11 @@ export async function createNewDoctor(data: any) {
       };
     }
 
-
     const validatedValues = values.data;
     const workingDayData = workingDaysValues.data!;
     const client = await clerkClient();
 
+    // Create user in Clerk
     const user = await client.users.createUser({
       emailAddress: [validatedValues.email],
       password: validatedValues.password,
@@ -36,8 +33,9 @@ export async function createNewDoctor(data: any) {
       publicMetadata: { role: "doctor" },
     });
 
-    delete validatedValues["password"]; // Remove password from validated values before saving to the database because it's not needed there
+    delete validatedValues["password"]; // Remove password before saving to DB
 
+    // Create doctor in local database
     const doctor = await db.doctor.create({
       data: {
         ...validatedValues,
@@ -45,7 +43,7 @@ export async function createNewDoctor(data: any) {
       },
     });
 
-    // Promise all to create working days for the doctor
+    // Create working days for the doctor
     await Promise.all(
       workingDayData?.map((el) =>
         db.workingDays.create({
@@ -66,12 +64,14 @@ export async function createNewStaff(data: any) {
     const { userId } = await auth();
 
     if (!userId) {
+      // Only authenticated users can create staff
       return { success: false, msg: "Unauthorized" };
     }
 
     const isAdmin = await checkRole("ADMIN");
 
     if (!isAdmin) {
+      // Only admins can create staff
       return { success: false, msg: "Unauthorized" };
     }
 
@@ -87,8 +87,8 @@ export async function createNewStaff(data: any) {
 
     const validatedValues = values.data;
 
+    // Create user in Clerk
     const client = await clerkClient();
-
     const user = await client.users.createUser({
       emailAddress: [validatedValues.email],
       password: validatedValues.password,
@@ -99,6 +99,7 @@ export async function createNewStaff(data: any) {
 
     delete validatedValues["password"];
 
+    // Create staff in local database
     const doctor = await db.staff.create({
       data: {
         name: validatedValues.name,

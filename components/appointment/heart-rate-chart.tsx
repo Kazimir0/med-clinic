@@ -12,6 +12,9 @@ import {
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
+// Props for the HeartRateChart component
+// - average: string representing the average heart rate
+// - data: array of objects with label and two heart rate values
 interface DataProps {
   average: string;
   data: {
@@ -21,6 +24,10 @@ interface DataProps {
   }[];
 }
 
+/**
+ * Displays a line chart of heart rate readings over time.
+ * Shows the most recent reading, average rate, and a chart legend.
+ */
 export function HeartRateChart({ average, data }: DataProps) {
   const lastData = data[data.length - 1];
 
@@ -31,6 +38,7 @@ export function HeartRateChart({ average, data }: DataProps) {
       </CardHeader>
 
       <CardContent>
+        {/* Summary section with most recent reading and average */}
         <div className="flex justify-between items-center mb-4">
           <div>
             <p className="text-lg xl:text-xl font-semibold">
@@ -47,6 +55,7 @@ export function HeartRateChart({ average, data }: DataProps) {
           </Button>
         </div>
 
+        {/* Heart rate line chart visualization */}
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={data}>
             <CartesianGrid
@@ -68,6 +77,7 @@ export function HeartRateChart({ average, data }: DataProps) {
             <Tooltip
               contentStyle={{ borderRadius: "10px", borderColor: "#fff" }}
             />
+            {/* Two heart rate lines for comparison */}
             <Line
               type="monotone"
               dataKey="value1"

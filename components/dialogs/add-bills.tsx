@@ -34,6 +34,7 @@ export const AddBills = ({ id, appId, servicesData }: DataProps) => {
   const router = useRouter();
   const [data, setData] = useState<any>();
 
+  // Initialize the form with validation and default values
   const form = useForm<z.infer<typeof PatientBillSchema>>({
     resolver: zodResolver(PatientBillSchema),
     defaultValues: {
@@ -47,6 +48,7 @@ export const AddBills = ({ id, appId, servicesData }: DataProps) => {
     },
   });
 
+  // Handle form submission for adding a new bill
   const handleOnSubmit = async (values: z.infer<typeof PatientBillSchema>) => {
     try {
       setIsLoading(true);
@@ -54,9 +56,8 @@ export const AddBills = ({ id, appId, servicesData }: DataProps) => {
 
       if (resp.success) {
         toast.success("Patient bill added successfully!");
-
+        // Refresh the page and reset the form on success
         router.refresh();
-
         form.reset();
       } else if (resp.error) {
         toast.error(resp.msg);
@@ -69,6 +70,7 @@ export const AddBills = ({ id, appId, servicesData }: DataProps) => {
     }
   };
 
+  // Populate the select list for services when servicesData changes
   useEffect(() => {
     if (servicesData) {
       setData(

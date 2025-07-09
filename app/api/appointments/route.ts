@@ -5,7 +5,13 @@ import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 import { createNotification } from "@/utils/server-notifications";
 
-// POST - Creează o nouă programare
+/**
+ * POST: Creates a new appointment between a doctor and a patient.
+ * - Authenticates the user.
+ * - Creates the appointment in the database.
+ * - Sends notifications to both patient and doctor about the new appointment.
+ * Returns the created appointment and notification info.
+ */
 export async function POST(request: Request) {
     try {
         const { userId } = await auth();
@@ -14,15 +20,16 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        // Parse request body for appointment details
         const data = await request.json();
         const { doctor_id, patient_id, appointment_date, time, notes } = data;
 
-        // Adăugăm log-uri pentru debugging
+        // Log for debugging
         console.log("========= CREATING APPOINTMENT =========");
         console.log("Patient ID:", patient_id);
         console.log("Doctor ID:", doctor_id);
 
-        // Creează programarea
+        // Create the appointment in the database
         const appointment = await db.appointment.create({
             data: {
                 appointment_date: new Date(appointment_date),
@@ -48,14 +55,13 @@ export async function POST(request: Request) {
         });
         console.log("Appointment created successfully, ID:", appointment.id);
 
-        // Creează direct notificările în baza de date
-        // Pentru pacient
+        // Create notification for the patient
         let patientNotification = null;
         try {
             patientNotification = await db.notification.create({
                 data: {
-                    title: "Programare nouă",
-                    message: `Programare creată pentru data de ${format(new Date(appointment_date), 'dd MMMM yyyy', { locale: ro })} la ora ${time}.`,
+                    title: "New Appointment",
+                    message: `Appointment created for ${format(new Date(appointment_date), 'dd MMMM yyyy', { locale: ro })} at ${time}.`,
                     type: "appointment",
                     user_id: patient_id,
                     read: false,
@@ -73,13 +79,13 @@ export async function POST(request: Request) {
             console.error("Failed to create patient notification:", error);
         }
 
-        // Pentru doctor
+        // Create notification for the doctor
         let doctorNotification = null;
         try {
             doctorNotification = await db.notification.create({
                 data: {
-                    title: "Programare nouă",
-                    message: `Aveți o nouă programare la data de ${format(new Date(appointment_date), 'dd MMMM yyyy', { locale: ro })} la ora ${time}.`,
+                    title: "New Appointment",
+                    message: `You have a new appointment on ${format(new Date(appointment_date), 'dd MMMM yyyy', { locale: ro })} at ${time}.`,
                     type: "appointment",
                     user_id: doctor_id,
                     read: false,
@@ -97,7 +103,7 @@ export async function POST(request: Request) {
             console.error("Failed to create doctor notification:", error);
         }
 
-        // Returnăm răspunsul
+        // Return the created appointment and notification info
         return NextResponse.json({
             success: true,
             message: "Appointment created successfully",
@@ -122,7 +128,13 @@ export async function POST(request: Request) {
     }
 }
 
-// PATCH - Actualizează o programare
+/**
+ * PATCH: Updates an existing appointment's status or details.
+ * - Authenticates the user.
+ * - Updates the appointment in the database.
+ * - Sends notifications to patient and doctor if the status changes.
+ * Returns the updated appointment.
+ */
 export async function PATCH(request: Request) {
     try {
         const { userId } = await auth();
@@ -130,10 +142,11 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        // Parse request body for update details
         const data = await request.json();
         const { id, status, ...otherData } = data;
 
-        // Verifică dacă programarea există
+        // Find the existing appointment
         const existingAppointment = await db.appointment.findUnique({
             where: { id: parseInt(id) },
             include: {
@@ -146,7 +159,7 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: "Appointment not found" }, { status: 404 });
         }
 
-        // Actualizează programarea
+        // Update the appointment in the database
         const updatedAppointment = await db.appointment.update({
             where: { id: parseInt(id) },
             data: {
@@ -159,33 +172,32 @@ export async function PATCH(request: Request) {
             }
         });
 
-        // Creează notificări bazate pe schimbarea statusului
+        // Send notifications if the status changed
         if (status && status !== existingAppointment.status) {
             let title = "";
             let message = "";
 
             switch (status) {
                 case "CONFIRMED":
-                    title = "Programare confirmată";
-                    message = `Programarea din data de ${format(new Date(existingAppointment.appointment_date), 'dd MMMM yyyy', { locale: ro })} la ora ${existingAppointment.time} a fost confirmată.`;
+                    title = "Appointment Confirmed";
+                    message = `The appointment on ${format(new Date(existingAppointment.appointment_date), 'dd MMMM yyyy', { locale: ro })} at ${existingAppointment.time} has been confirmed.`;
                     break;
                 case "COMPLETED":
-                    title = "Programare finalizată";
-                    message = `Programarea din data de ${format(new Date(existingAppointment.appointment_date), 'dd MMMM yyyy', { locale: ro })} la ora ${existingAppointment.time} a fost finalizată.`;
+                    title = "Appointment Completed";
+                    message = `The appointment on ${format(new Date(existingAppointment.appointment_date), 'dd MMMM yyyy', { locale: ro })} at ${existingAppointment.time} has been completed.`;
                     break;
                 case "CANCELLED":
-                    title = "Programare anulată";
-                    message = `Programarea din data de ${format(new Date(existingAppointment.appointment_date), 'dd MMMM yyyy', { locale: ro })} la ora ${existingAppointment.time} a fost anulată.`;
+                    title = "Appointment Cancelled";
+                    message = `The appointment on ${format(new Date(existingAppointment.appointment_date), 'dd MMMM yyyy', { locale: ro })} at ${existingAppointment.time} has been cancelled.`;
                     break;
             }
 
             if (title) {
-                // Obține ID-urile pentru notificări
-                // Folosim direct ID-urile din relații
+                // Get patient and doctor IDs for notifications
                 const patientId = existingAppointment.patient?.id;
                 const doctorId = existingAppointment.doctor?.id;
 
-                // Notificare pentru pacient
+                // Notification for patient
                 if (patientId) {
                     console.log("Creating notification for patient with ID:", patientId);
                     try {
@@ -203,7 +215,7 @@ export async function PATCH(request: Request) {
                     }
                 }
 
-                // Notificare pentru doctor
+                // Notification for doctor
                 if (doctorId) {
                     console.log("Creating notification for doctor with ID:", doctorId);
                     try {

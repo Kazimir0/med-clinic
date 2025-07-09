@@ -8,10 +8,10 @@ import {
   CardTitle,
 } from "../ui/card";
 import { AddService } from "../dialogs/add-service";
-import { ActionDialog } from "../action-dialog";
 import { checkRole } from "@/utils/roles";
 import { EditService } from "../dialogs/edit-service";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { ActionDialog } from "../action-dialog";
 
 const columns = [
   {
@@ -41,16 +41,19 @@ const columns = [
   },
 ];
 
+// ServiceSettings fetches and displays a table of all services offered by the platform.
+// Allows admins to edit or delete services and add new ones.
 export const ServiceSettings = async () => {
   const { data } = await getServices();
 
+  // Render a table row for each service
   const renderRow = async (item: Services) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-slate-50"
     >
       <td className="py-4 px-2">{item?.id}</td>
-
+      {/* Service name with tooltip */}
       <td className="hidden md:table-cell py-4 px-4">
         <TooltipProvider>
           <Tooltip>
@@ -61,11 +64,11 @@ export const ServiceSettings = async () => {
           </Tooltip>
         </TooltipProvider>
       </td>
-
+      {/* Service price */}
       <td className="hidden md:table-cell py-4 px-4 capitalize">
         {item?.price?.toFixed(2)}
       </td>
-
+      {/* Service description with tooltip */}
       <td className="hidden xl:table-cell py-4 px-4">
         <TooltipProvider>
           <Tooltip>
@@ -78,7 +81,7 @@ export const ServiceSettings = async () => {
           </Tooltip>
         </TooltipProvider>
       </td>
-
+      {/* Admin actions: edit and delete */}
       <td className="hidden md:table-cell py-4 px-4">
         <div className="flex items-center gap-3">
           {await checkRole("ADMIN") && (
@@ -109,6 +112,7 @@ export const ServiceSettings = async () => {
       </CardHeader>
 
       <CardContent>
+        {/* Table of all services */}
         <Table columns={columns} renderRow={renderRow} data={data!} />
       </CardContent>
     </>

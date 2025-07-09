@@ -4,6 +4,14 @@ import db from '@/lib/db';
 import { auth } from '@clerk/nextjs/server';
 import { createNotification } from '@/utils/server-notifications';
 
+/**
+ * POST: Initiates a Stripe Checkout session for a medical payment.
+ * - Authenticates the user.
+ * - Validates the payment ID and fetches payment details from the database.
+ * - Calculates the amount due and creates a Stripe Checkout session.
+ * - Sends a notification to the patient about the initiated payment.
+ * - Returns the Stripe session URL for client-side redirection.
+ */
 export async function POST(req: NextRequest) {
     try {
         console.log("Processing payment request");
@@ -17,6 +25,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        // Parse request body and extract paymentId
         const body = await req.json();
         const { paymentId } = body;
         console.log("Payment ID received:", paymentId);
@@ -29,6 +38,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        // Fetch payment and related appointment, doctor, and patient
         const payment = await db.payment.findUnique({
             where: { id: parseInt(paymentId) },
             include: {
@@ -48,6 +58,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        // Calculate the amount due for the payment
         const amountDue = payment.total_amount - payment.discount - payment.amount_paid;
         if (amountDue <= 0) {
             return NextResponse.json(
@@ -56,6 +67,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        // Create a Stripe Checkout session for the payment
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [
@@ -80,12 +92,13 @@ export async function POST(req: NextRequest) {
             },
         });
 
+        // Send notification to the patient about the initiated payment
         try {
             await createNotification({
-                title: "Plată inițiată",
-                message: `O plată în valoare de ${amountDue} RON a fost inițiată pentru serviciile medicale.`,
+                title: "Payment Initiated",
+                message: `A payment of ${amountDue} RON has been initiated for medical services.`,
                 type: "payment",
-                userId: payment.appointment.patient.id, // Asigură-te că acest câmp există
+                userId: payment.appointment.patient.id, // Patient's user ID
                 link: `/record/appointments/${payment.appointment_id}?cat=payments`,
                 data: {
                     paymentId: payment.id,
@@ -94,10 +107,11 @@ export async function POST(req: NextRequest) {
                 }
             });
         } catch (notificationError) {
-            // Doar logăm eroarea, nu întrerupem fluxul principal
+            // Log notification errors but do not interrupt the main flow
             console.error("Failed to create notification:", notificationError);
         }
 
+        // Return the Stripe session URL for client-side redirection
         return NextResponse.json({ url: session.url });
     } catch (error) {
         console.error('Stripe session creation error:', error);

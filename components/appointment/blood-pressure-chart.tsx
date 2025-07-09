@@ -13,6 +13,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 
+// Props for the BloodPressureChart component
+// - average: string representing the average blood pressure over a period
+// - data: array of objects with label, systolic, and diastolic values
 interface BloodPressureChartProps {
   average: string;
   data: {
@@ -22,6 +25,10 @@ interface BloodPressureChartProps {
   }[];
 }
 
+/**
+ * Displays a bar chart of blood pressure readings (systolic/diastolic) over time.
+ * Shows the most recent reading, 7-day average, and a chart legend.
+ */
 const BloodPressureChart = ({ data, average }: BloodPressureChartProps) => {
   const lastData = data[data.length - 1];
 
@@ -32,6 +39,7 @@ const BloodPressureChart = ({ data, average }: BloodPressureChartProps) => {
       </CardHeader>
 
       <CardContent>
+        {/* Summary section with most recent reading and average */}
         <div className="flex justify-between items-center mb-4">
           <div>
             <p className="text-lg xl:text-xl font-semibold">
@@ -50,6 +58,7 @@ const BloodPressureChart = ({ data, average }: BloodPressureChartProps) => {
           </Button>
         </div>
 
+        {/* Blood pressure bar chart visualization */}
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data}>
             <CartesianGrid
@@ -78,6 +87,7 @@ const BloodPressureChart = ({ data, average }: BloodPressureChartProps) => {
               }}
             />
 
+            {/* Systolic and diastolic bars */}
             <Bar
               dataKey="systolic"
               fill="#000000"

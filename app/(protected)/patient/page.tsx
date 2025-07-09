@@ -14,15 +14,20 @@ import { redirect } from 'next/navigation'
 import React from 'react'
 
 const PatientDashboard = async () => {
+  // Get current user info
   const user = await currentUser()
+  // Fetch dashboard statistics for the patient
   const { data, appointmentCounts, last5Records, totalAppointments, availableDoctor, monthlyData } = await getPatientDashboardStatistics(user?.id!);
 
+  // Redirect to registration if user exists but no patient data
   if (user && !data) {
     redirect('/patient/registration')
   }
 
+  // If no data, render nothing
   if (!data) return null;
 
+  // Prepare data for summary cards
   const cardData = [
     {
       title: "appointments",
@@ -60,7 +65,7 @@ const PatientDashboard = async () => {
 
   return (
     <div className='py-6 mp-3 flex flex-col rotate-xl xl:flex-row gap-6'>
-      {/* LEFT */}
+      {/* LEFT: Main dashboard content */}
       <div className='w-full xl:w-[69%]'>
         <div className='bg-white rounded-xl p-4 mb-8'>
           <div className='flex items-center justify-between mb-4'>
@@ -75,28 +80,33 @@ const PatientDashboard = async () => {
 
           </div>
 
+          {/* Appointment summary cards */}
           <div className='w-full flex flex-wrap gap-5'>
             {cardData?.map((el, id) => (<StatCard link='#' key={id} {...el} />))}
           </div>
         </div>
 
+        {/* Appointment statistics chart */}
         <div className='h-[500px]'>
           <AppointmentChart data={monthlyData} />
         </div>
         <div className='bg-white rounded-xl p-4 mt-8'>
+          {/* Recent appointments table */}
           <RecentAppointments data={last5Records} />
         </div>
       </div>
 
 
-      {/* RIGHT */}
+      {/* RIGHT: Sidebar with stats, doctors, and ratings */}
       <div className='w-full xl:w-[30%]'>
         <div className='w-full h-[450px] mb-8'>
           <StatSummary data={appointmentCounts} total={totalAppointments} />
         </div>
 
+        {/* List of available doctors */}
         <AvailableDoctors data={availableDoctor as AvailableDoctorProps} />
 
+        {/* Patient rating section */}
         <PatientRatingContainer />
       </div>
     </div>

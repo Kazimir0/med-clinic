@@ -5,7 +5,7 @@ export function formatNumber(amount: number): string {
 }
 
 export function getInitials(name: string): string {
-  const words = name.trim().split(" ");
+  const words = name.trim().split(/\s+/);
 
   const firstTwoWords = words.slice(0, 2);
 
@@ -111,6 +111,9 @@ export function generateTimes(
 }
 
 export const calculateBMI = (weight: number, height: number) => {
+  if (weight <= 0 || height <= 0) {
+    throw new Error("Weight and height must be positive numbers.");
+  }
   const heightInMeters = height / 100;
 
   const bmi = weight / (heightInMeters * heightInMeters);

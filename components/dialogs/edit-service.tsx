@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PencilIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -31,6 +30,7 @@ export const EditService = ({ service }: EditServiceProps) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
+  // Initialize the form with validation and default values from the service prop
   const form = useForm<z.infer<typeof ServicesSchema>>({
     resolver: zodResolver(ServicesSchema),
     defaultValues: {
@@ -40,7 +40,7 @@ export const EditService = ({ service }: EditServiceProps) => {
     },
   });
 
-  // Reset form when service changes or dialog opens
+  // Reset form fields when the dialog opens or the service prop changes
   useEffect(() => {
     if (open) {
       form.reset({
@@ -51,6 +51,7 @@ export const EditService = ({ service }: EditServiceProps) => {
     }
   }, [service, form, open]);
 
+  // Handle form submission for updating the service
   const handleOnSubmit = async (values: z.infer<typeof ServicesSchema>) => {
     try {
       setIsLoading(true);

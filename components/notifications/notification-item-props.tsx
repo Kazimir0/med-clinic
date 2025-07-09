@@ -23,7 +23,10 @@ interface NotificationItemProps {
   onMarkAsRead: () => void;
 }
 
+// NotificationItem displays a single notification with icon, title, message, and time.
+// Allows marking as read and supports linking to a detail page if a link is provided.
 export const NotificationItem = ({ notification, onMarkAsRead }: NotificationItemProps) => {
+  // Returns an icon based on notification type
   const getIcon = () => {
     switch (notification.type) {
       case "appointment":
@@ -39,11 +42,13 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
     }
   };
 
+  // Format the time since notification was created
   const timeAgo = formatDistanceToNow(new Date(notification.created_at), {
     addSuffix: true,
     locale: ro
   });
 
+  // Mark this notification as read
   const markAsRead = async () => {
     try {
       const response = await fetch(`/api/notifications/${notification.id}`, {
@@ -60,6 +65,7 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
     }
   };
 
+  // Notification content (icon, title, message, time, mark as read button)
   const content = (
     <div 
       className={cn(
@@ -81,6 +87,7 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
           <p className="text-sm mt-1 text-gray-600">{notification.message}</p>
         </div>
         
+        {/* Mark as read button, only if unread */}
         {!notification.read && (
           <Button 
             variant="ghost" 
@@ -99,6 +106,7 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
     </div>
   );
 
+  // If notification has a link, wrap content in a Link
   if (notification.link) {
     return (
       <Link href={notification.link}>

@@ -19,7 +19,10 @@ interface DataProps {
   isShowProfile?: boolean;
 }
 
+// MedicalHistory component displays a table of medical history records for patients.
+// Supports optional profile info, doctor details, diagnosis dialog, and view action.
 export const MedicalHistory = ({ data, isShowProfile }: DataProps) => {
+  // Define table columns, some are conditionally shown based on isShowProfile or screen size
   const columns = [
     {
       header: "No",
@@ -57,14 +60,17 @@ export const MedicalHistory = ({ data, isShowProfile }: DataProps) => {
     },
   ];
 
+  // Render a single row of the medical history table
   const renderRow = (item: ExtendedMedicalHistory) => {
     return (
       <tr
         key={item.id}
         className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-slate-50"
       >
+        {/* Record ID */}
         <td className="py-2 xl:py-6"># {item?.id}</td>
 
+        {/* Patient profile info, if enabled */}
         {isShowProfile && (
           <td className="flex items-center gap-2 2xl:gap-4 py-2 xl:py-4">
             <ProfileImage
@@ -82,8 +88,10 @@ export const MedicalHistory = ({ data, isShowProfile }: DataProps) => {
           </td>
         )}
 
+        {/* Date and time of record creation */}
         <td className="">{formatDateTime(item?.created_at.toString())}</td>
 
+        {/* Doctor info, with fallback if not found */}
         <td className="hidden xl:table-cell py-2">
           {item?.doctor ? (
             <div className="flex items-center gap-2">
@@ -107,6 +115,7 @@ export const MedicalHistory = ({ data, isShowProfile }: DataProps) => {
           )}
         </td>
 
+        {/* Diagnosis info, opens dialog if present */}
         <td className="hidden lg:table-cell">
           {item?.diagnosis?.length === 0 ? (
             <span className="text-sm italic text-gray-500">
@@ -143,6 +152,7 @@ export const MedicalHistory = ({ data, isShowProfile }: DataProps) => {
           )}
         </td> */}
 
+        {/* View action button for appointment details */}
         <td>
           <ViewAction href={`/record/appointments/${item?.appointment_id}`} />
         </td>
@@ -153,6 +163,7 @@ export const MedicalHistory = ({ data, isShowProfile }: DataProps) => {
   return (
     <>
       <div className="bg-white rounded-xl p-2 2xl:p-6">
+        {/* Header with record count */}
         <div className="">
           <h1 className="font-semibold text-xl">Medical History (All)</h1>
           <div className="hidden lg:flex items-center gap-1">
@@ -163,6 +174,7 @@ export const MedicalHistory = ({ data, isShowProfile }: DataProps) => {
             </span>
           </div>
         </div>
+        {/* Render the table with columns and rows */}
         <Table columns={columns} renderRow={renderRow} data={data} />
       </div>
     </>

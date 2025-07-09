@@ -18,11 +18,14 @@ interface Notification {
   created_at: string;
 }
 
+// NotificationsContent displays all notifications in a scrollable area with mark all as read functionality.
+// Handles loading state, error handling, and user feedback.
 export const NotificationsContent = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Fetch all notifications from the API
   const fetchNotifications = async () => {
     try {
       setIsLoading(true);
@@ -47,6 +50,7 @@ export const NotificationsContent = () => {
     fetchNotifications();
   }, []);
 
+  // Mark all notifications as read
   const markAllAsRead = async () => {
     try {
       const response = await fetch("/api/notifications/read-all", {
@@ -71,6 +75,7 @@ export const NotificationsContent = () => {
     }
   };
 
+  // Show loading spinner while fetching notifications
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -83,7 +88,7 @@ export const NotificationsContent = () => {
     <div className="bg-white rounded-xl shadow-sm p-4">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">Notificările tale</h2>
-        
+        {/* Button to mark all as read if there are unread notifications */}
         {unreadCount > 0 && (
           <Button 
             onClick={markAllAsRead}
@@ -94,7 +99,7 @@ export const NotificationsContent = () => {
           </Button>
         )}
       </div>
-
+      {/* Show message if no notifications, else list notifications */}
       {notifications.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500">Nu ai notificări</p>

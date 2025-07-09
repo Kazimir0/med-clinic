@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { markPaymentCompleted } from '@/app/actions/payment';
 
 export default function PaymentSuccessPage() {

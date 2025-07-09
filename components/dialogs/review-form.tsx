@@ -15,7 +15,7 @@ import { Textarea } from "../ui/textarea";
 import { Plus, StarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Schema pentru client-side validation
+// reviewSchema defines client-side validation for the review form fields
 const reviewSchema = z.object({
   patient_id: z.string(),
   staff_id: z.string(),
@@ -26,12 +26,15 @@ const reviewSchema = z.object({
     .max(500, "Review must not exceed 500 characters"),
 });
 
+// ReviewForm provides a dialog form for patients to submit a review for a staff member.
+// Handles form validation, submission, and user feedback.
 export const ReviewForm = ({ staffId }: { staffId: string }) => {
   const router = useRouter();
   const user = useAuth();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
+  // Initialize the form with validation and default values
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
@@ -42,6 +45,7 @@ export const ReviewForm = ({ staffId }: { staffId: string }) => {
     },
   });
 
+  // Handle form submission for creating a review
   const handleSubmit = async (values: ReviewFormValues) => {
     console.log("Form submitted with values:", values);
     
@@ -68,6 +72,7 @@ export const ReviewForm = ({ staffId }: { staffId: string }) => {
     }
   };
 
+  // onSubmit handler for react-hook-form
   const onSubmit = (data: ReviewFormValues) => {
     console.log("onSubmit called with:", data);
     handleSubmit(data);

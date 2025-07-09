@@ -14,23 +14,21 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-tr from-blue-50 via-white to-blue-100 p-6">
       <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-center">
-            Welcome to <br />
-            <span className="text-blue-700 text-5xl md:text-6xl">
+        <div className="bg-white/90 rounded-2xl shadow-2xl px-10 py-12 flex flex-col items-center gap-6 max-w-xl w-full">
+          <div className="flex flex-col items-center mb-4">
+            <span className="text-5xl md:text-6xl font-extrabold text-blue-700 drop-shadow-sm tracking-tight mb-2">
               MedClinic
             </span>
-          </h1>
-        </div>
-
-        <div className="text-center max-w-xl flex flex-col items-center justify-center">
-          <p className="mb-8">
-            A modern medical platform for quick schedules and consultations.
+            <span className="text-blue-400 text-lg font-medium">
+              Welcome to your modern medical platform
+            </span>
+          </div>
+          <p className="text-center text-gray-700 mb-6">
+            A modern medical platform for quick schedules and consultations.<br />
             Manage your health simply and efficiently, with access to the best specialists.
           </p>
-
           <div className="flex gap-4">
             {userId ? (
               <>
@@ -42,13 +40,12 @@ export default async function Home() {
             ) : (
               <>
                 <Link href="/sign-up">
-                  <Button className="md:text-base font-light">
+                  <Button className="md:text-base font-light shadow-md">
                     New Patient
                   </Button>
                 </Link>
-
                 <Link href="/sign-in">
-                  <Button variant="outline" className="md:text-base underline hover:text-blue-600">
+                  <Button variant="outline" className="md:text-base underline hover:text-blue-600 shadow-md">
                     Login to account
                   </Button>
                 </Link>
@@ -58,11 +55,10 @@ export default async function Home() {
         </div>
       </div>
       <footer className="mt-8">
-        <p className="text-center text-sm">
+        <p className="text-center text-sm text-gray-500">
           &copy; 2025 MedClinic. All rights reserved.
         </p>
       </footer>
-
     </div>
   );
 }

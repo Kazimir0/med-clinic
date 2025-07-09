@@ -10,20 +10,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 import MedicationAdministrationForm from "@/components/medication-administraction-form";
 
+// PageProps defines the expected route params
 interface PageProps {
   params: {
     id: string;
   };
 }
 
+// Main page component for administering medication
 const AdministerMedicationPage = async ({ params }: PageProps) => {
+  // Get current user and check if they have the right role
   const { userId } = await auth();
   const isAuthorized = await checkRole(["ADMIN", "DOCTOR", "NURSE"]);
   
   if (!userId || !isAuthorized) {
+    // Redirect unauthorized users to home
     redirect("/");
   }
 
+  // Fetch prescription details from the database
   const prescriptionId = parseInt(params.id);
   const prescription = await db.prescription.findUnique({
     where: {
@@ -42,6 +47,7 @@ const AdministerMedicationPage = async ({ params }: PageProps) => {
   });
   
   if (!prescription) {
+    // Redirect if prescription not found
     redirect("/doctor/administer-medications");
   }
   
@@ -62,6 +68,7 @@ const AdministerMedicationPage = async ({ params }: PageProps) => {
               <CardDescription>Record medication administration details</CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Form for recording medication administration */}
               <MedicationAdministrationForm 
                 prescriptionId={prescription.id}
                 medications={prescription.medications}
@@ -77,6 +84,7 @@ const AdministerMedicationPage = async ({ params }: PageProps) => {
             </CardHeader>
             <CardContent className="pt-4">
               <div className="flex items-center gap-3 mb-4">
+                {/* Patient profile image and basic info */}
                 <ProfileImage 
                   url={prescription.patient.img || ""} 
                   name={`${prescription.patient.first_name} ${prescription.patient.last_name}`}
@@ -111,6 +119,7 @@ const AdministerMedicationPage = async ({ params }: PageProps) => {
             </CardHeader>
             <CardContent className="pt-4">
               <div className="mb-3 text-sm">
+                {/* Doctor and prescription info */}
                 <p><span className="font-medium">Prescribed by: </span>Dr. {prescription.doctor.name}</p>
                 <p><span className="font-medium">Specialization: </span>{prescription.doctor.specialization}</p>
                 <p><span className="font-medium">Date: </span>{format(prescription.created_at, "PPP")}</p>

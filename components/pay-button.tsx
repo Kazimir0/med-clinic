@@ -17,17 +17,20 @@ interface PayButtonProps {
     paymentId: string;
 }
 
+// PayButton component provides a dialog for selecting and processing a payment method (cash or card)
+// Handles payment logic, error handling, and UI feedback for both methods
 export const PayButton = ({ paymentId }: PayButtonProps) => {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
+    // Handles payment processing for the selected method
     const handlePayment = async (method: "CASH" | "CARD") => {
         try {
             setLoading(true);
 
             if (method === "CASH") {
-                // Procesează plată cash
+                // Process cash payment via server action
                 const result = await processPayment(paymentId, "CASH");
 
                 if (result.success) {
@@ -40,6 +43,7 @@ export const PayButton = ({ paymentId }: PayButtonProps) => {
             } else if (method === "CARD") {
                 try {
                     setLoading(true);
+                    // Initiate Stripe checkout session via API
                     const response = await fetch('/api/stripe', {
                         method: 'POST',
                         headers: {
@@ -52,10 +56,10 @@ export const PayButton = ({ paymentId }: PayButtonProps) => {
                     console.log("Stripe API response:", data);
 
                     if (response.ok && data.url) {
-                        // Redirecționează către pagina de checkout Stripe
+                        // Redirect to Stripe checkout page
                         window.location.href = data.url;
                     } else {
-                        // Afișează eroarea completă primită de la server
+                        // Show error from server
                         toast.error(data.error || "Failed to create checkout session");
                         console.error("Stripe checkout error details:", data);
                     }
@@ -76,6 +80,7 @@ export const PayButton = ({ paymentId }: PayButtonProps) => {
 
     return (
         <>
+            {/* Pay button opens the payment method dialog */}
             <Button
                 onClick={() => setOpen(true)}
                 className="flex items-center justify-center rounded-full bg-green-600/10 hover:bg-green-600/20 text-green-600 px-1.5 py-1 text-xs md:text-sm"
@@ -83,6 +88,7 @@ export const PayButton = ({ paymentId }: PayButtonProps) => {
                 Pay
             </Button>
 
+            {/* Dialog for selecting payment method */}
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>
                     <DialogHeader>
@@ -94,6 +100,7 @@ export const PayButton = ({ paymentId }: PayButtonProps) => {
 
                     <div className="grid grid-cols-1 gap-4 py-4">
                         <div className="flex flex-col space-y-4">
+                            {/* Cash payment option */}
                             <Button
                                 variant="outline"
                                 className="justify-start py-6"
@@ -106,6 +113,7 @@ export const PayButton = ({ paymentId }: PayButtonProps) => {
                                 </div>
                             </Button>
 
+                            {/* Card payment option */}
                             <Button
                                 variant="outline"
                                 className="justify-start py-6"

@@ -30,6 +30,8 @@ interface AddVitalSignsProps {
 
 export type VitalSignsFormData = z.infer<typeof VitalSignsSchema>;
 
+// AddVitalSigns provides a dialog form to add new vital signs for a patient.
+// Handles form validation, submission, and user feedback.
 export const AddVitalSigns = ({
   patientId,
   doctorId,
@@ -39,6 +41,7 @@ export const AddVitalSigns = ({
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  // Initialize the form with validation and default values
   const form = useForm<VitalSignsFormData>({
     resolver: zodResolver(VitalSignsSchema),
     defaultValues: {
@@ -55,12 +58,11 @@ export const AddVitalSigns = ({
     },
   });
 
+  // Handle form submission for adding vital signs
   const handleOnSubmit = async (data: VitalSignsFormData) => {
     try {
       setIsLoading(true);
-
       const res = await addVitalSigns(data, appointmentId, doctorId);
-
       if (res.success) {
         router.refresh();
         toast.success(res.msg);

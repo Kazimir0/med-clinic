@@ -8,9 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Clock, MoveRight, Pill } from "lucide-react";
 
 const PrescriptionPage = async () => {
+  // Get current user ID
   const { userId } = await auth();
   
   if (!userId) {
+    // Redirect unauthenticated users to sign-in
     redirect("/sign-in");
   }
 
@@ -34,7 +36,7 @@ const PrescriptionPage = async () => {
             orderBy: {
               administered_at: "desc"
             },
-            take: 1  // Ia doar ultima administrare pentru afișare
+            take: 1  // Only fetch the latest administration for display
           }
         }
       }
@@ -51,6 +53,7 @@ const PrescriptionPage = async () => {
         <p className="text-gray-500">View all your current and past prescriptions</p>
       </div>
 
+      {/* Show message if no prescriptions exist */}
       {prescriptions.length === 0 ? (
         <Card className="bg-gray-50 border border-dashed">
           <CardContent className="pt-6 flex flex-col items-center justify-center text-center p-10">
@@ -63,6 +66,7 @@ const PrescriptionPage = async () => {
         </Card>
       ) : (
         <div className="space-y-6">
+          {/* Render each prescription card */}
           {prescriptions.map((prescription) => (
             <Card key={prescription.id} className="overflow-hidden">
               <CardHeader className="bg-blue-50 pb-3">
@@ -91,6 +95,7 @@ const PrescriptionPage = async () => {
                   </div>
                 </div>
 
+                {/* List medications for this prescription */}
                 <h3 className="font-medium mb-2">Medications</h3>
                 <div className="space-y-3">
                   {prescription.medications.map((med, index) => (
@@ -114,11 +119,13 @@ const PrescriptionPage = async () => {
                         <Clock className="h-3 w-3 mr-1" />
                         <span>{med.frequency}</span>
                       </div>
+                      {/* Show last administration date if available */}
                       {med.administrations && med.administrations.length > 0 && (
                         <div className="mt-2 text-xs text-gray-500 border-t pt-2">
                           Last administered: {format(med.administrations[0].administered_at, "PPP")}
                         </div>
                       )}
+                      {/* Show instructions if available */}
                       {med.instructions && (
                         <p className="mt-2 text-sm text-gray-700 border-t pt-2">
                           {med.instructions}
@@ -128,6 +135,7 @@ const PrescriptionPage = async () => {
                   ))}
                 </div>
 
+                {/* Show doctor's notes if available */}
                 {prescription.notes && (
                   <div className="mt-4 border-t pt-3">
                     <h3 className="font-medium mb-1">Doctor's Notes</h3>
@@ -135,6 +143,7 @@ const PrescriptionPage = async () => {
                   </div>
                 )}
                 
+                {/* Link to view prescription details */}
                 <div className="mt-4 pt-3 border-t flex justify-end">
                   <Link 
                     href={`/patient/prescription/${prescription.id}`} 

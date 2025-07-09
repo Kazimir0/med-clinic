@@ -7,8 +7,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-
-
 import { z } from "zod";
 
 import { Button } from "../ui/button";
@@ -24,10 +22,13 @@ import { ServicesSchema } from "@/lib/schema";
 import { CustomInput } from "../custom-input";
 import { addNewService } from "@/app/actions/admin";
 
+// AddService provides a dialog form to add a new service to the platform.
+// Handles form validation, submission, and user feedback.
 export const AddService = () => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  // Initialize the form with validation and default values
   const form = useForm<z.infer<typeof ServicesSchema>>({
     resolver: zodResolver(ServicesSchema),
     defaultValues: {
@@ -37,6 +38,7 @@ export const AddService = () => {
     },
   });
 
+  // Handle form submission for adding a new service
   const handleOnSubmit = async (values: z.infer<typeof ServicesSchema>) => {
     try {
       setIsLoading(true);

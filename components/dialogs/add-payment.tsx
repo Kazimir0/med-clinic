@@ -20,17 +20,20 @@ import { Form } from "../ui/form";
 import { CustomInput } from "../custom-input";
 import { addPaymentMethod } from "@/app/actions/admin";
 
-// Definim schema pentru metodele de plată
+// PaymentMethodSchema defines validation for payment method form fields
 const PaymentMethodSchema = z.object({
   name: z.string().min(1, "Method name is required").max(35, "Method name must be 35 characters or less"),
   description: z.string().min(1, "Description is required").max(100, "Description must be 100 characters or less")
 });
 
+// AddPaymentMethod provides a dialog form to add a new payment method to the platform.
+// Handles form validation, submission, and user feedback.
 export const AddPaymentMethod = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
+  // Initialize the form with validation and default values
   const form = useForm<z.infer<typeof PaymentMethodSchema>>({
     resolver: zodResolver(PaymentMethodSchema),
     defaultValues: {
@@ -39,6 +42,7 @@ export const AddPaymentMethod = () => {
     },
   });
 
+  // Handle form submission for adding a payment method
   const handleOnSubmit = async (values: z.infer<typeof PaymentMethodSchema>) => {
     try {
       setIsLoading(true);

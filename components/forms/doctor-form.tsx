@@ -38,11 +38,14 @@ type Day = {
     close_time?: string;
 };
 
+// DoctorForm provides a sheet dialog form to add a new doctor to the platform.
+// Handles form validation, submission, work schedule, and user feedback.
 export const DoctorForm = () => {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const [workSchedule, setWorkSchedule] = useState<Day[]>([])
 
+    // Initialize the form with validation and default values
     const form = useForm<z.infer<typeof DoctorSchema>>({
         resolver: zodResolver(DoctorSchema),
         defaultValues: {
@@ -59,6 +62,7 @@ export const DoctorForm = () => {
         }
     });
 
+    // Handle form submission for adding a new doctor
     const handleSubmit = async (values: z.infer<typeof DoctorSchema>) => {
         try {
             if (isLoading) return; // Prevent multiple submissions
@@ -89,7 +93,8 @@ export const DoctorForm = () => {
             setIsLoading(false); // Reset loading state after submission
         }
     }
-    const selectedSpecialization = form.watch('specialization'); // Watch the specialization field to update department
+    // Watch the specialization field to update department automatically
+    const selectedSpecialization = form.watch('specialization');
     useEffect(() => {
         if (selectedSpecialization) {
             const department = SPECIALIZATION.find((el) => el.value === selectedSpecialization)

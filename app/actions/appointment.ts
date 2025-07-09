@@ -6,6 +6,7 @@ import { AppointmentSchema, VitalSignsSchema } from "@/lib/schema";
 import { auth } from "@clerk/nextjs/server";
 import { AppointmentStatus } from "@prisma/client";
 
+// Update appointment status and reason
 export async function appointmentAction(id: string | number, status: AppointmentStatus, reason: string) {
     try {
         await db.appointment.update({
@@ -24,6 +25,7 @@ export async function appointmentAction(id: string | number, status: Appointment
 
 }
 
+// Create a new appointment
 export async function createNewAppointment(data: any) {
     try {
         const validatedData = AppointmentSchema.safeParse(data);
@@ -60,11 +62,13 @@ export async function createNewAppointment(data: any) {
 
 }
 
+// Add vital signs to a medical record (creates record if needed)
 export async function addVitalSigns(data: VitalSignsFormData, appointmentId: string, doctorId: string) {
     try {
         const { userId } = await auth();
 
         if (!userId) {
+            // Only authenticated users can add vital signs
             return { success: false, msg: "Unauthorized" };
         }
 

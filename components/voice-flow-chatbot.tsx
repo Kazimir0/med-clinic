@@ -1,32 +1,37 @@
+// VoiceFlowChatbot component integrates the Voiceflow chatbot widget for authenticated users
 "use client";
 
 import { useEffect } from "react";
 import { useAuth, useUser } from "@clerk/nextjs";
 
 export const VoiceFlowChatbot = () => {
+  // Get authentication and user info from Clerk
   const { userId, isSignedIn } = useAuth();
   const { user } = useUser();
   
   useEffect(() => {
-    // Verifică dacă utilizatorul este autentificat
+    // Only proceed if the user is signed in and has a userId
     if (!isSignedIn || !userId) {
       return;
     }
     
-    // Verifică dacă scriptul există deja
+    // Prevent loading the script multiple times
     if (document.getElementById("voiceflow-script")) {
       return;
     }
     
+    // Dynamically create and append the Voiceflow widget script
     const script = document.createElement("script");
     script.id = "voiceflow-script";
     script.type = "text/javascript";
     script.async = true;
     
     script.onload = function() {
-      console.log("Script Voiceflow încărcat");
+      // Script loaded successfully
+      console.log("Voiceflow script loaded");
       
       try {
+        // Initialize the Voiceflow chat widget with user and project info
         // @ts-ignore
         window.voiceflow?.chat?.load({
           verify: { projectID: '6856bef558a0da2b7a093b37' },
@@ -35,7 +40,7 @@ export const VoiceFlowChatbot = () => {
           authorization: 'VF.DM.6856c9cdf49c34937af1f76d.MmNbyR0Slt13GzxS',
           user: {
             userID: userId,
-            name: user?.fullName || 'Pacient'
+            name: user?.fullName || 'Pacient' // Use user's full name or fallback
           },
           render: {
             mode: "overlay",
@@ -44,24 +49,26 @@ export const VoiceFlowChatbot = () => {
             title: "Asistent Medical",
             description: "Asistentul tău medical virtual"
           },
-          // Configurare simplificată fără extensii personalizate
+          // Allow HTML in chat (use with caution)
           allowDangerousHTML: true
         });
         
-        console.log("Voiceflow chat inițializat cu succes");
+        console.log("Voiceflow chat initialized successfully");
       } catch (error) {
-        console.error("Eroare la inițializarea chatbot-ului:", error);
+        // Handle initialization errors
+        console.error("Error initializing Voiceflow chatbot:", error);
       }
     };
     
     script.onerror = function() {
-      console.error("Eroare la încărcarea scriptului Voiceflow");
+      // Handle script loading errors
+      console.error("Error loading Voiceflow script");
     };
     
     script.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs";
     document.head.appendChild(script);
     
-    // Curăță la demontare
+    // Cleanup: remove the script when the component unmounts
     return () => {
       const voiceflowScript = document.getElementById("voiceflow-script");
       if (voiceflowScript) {
@@ -70,5 +77,6 @@ export const VoiceFlowChatbot = () => {
     };
   }, [userId, user, isSignedIn]);
   
+  // This component does not render any visible UI
   return null;
 };

@@ -30,10 +30,13 @@ const administrationSchema = z.object({
   administered: z.array(z.number()),
 });
 
+// MedicationAdministrationForm allows a user to record which medications were administered for a prescription
+// Handles validation, submission, and UI for selecting medications and adding notes
 const MedicationAdministrationForm = ({ prescriptionId, medications }: MedicationAdministrationFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
+  // Set up form with zod validation schema
   const form = useForm<z.infer<typeof administrationSchema>>({
     resolver: zodResolver(administrationSchema),
     defaultValues: {
@@ -42,24 +45,22 @@ const MedicationAdministrationForm = ({ prescriptionId, medications }: Medicatio
     },
   });
 
+  // Handle form submission
   async function onSubmit(values: z.infer<typeof administrationSchema>) {
     try {
       setIsSubmitting(true);
-      
-      // Verifică dacă au fost selectate medicamente
+      // Require at least one medication to be selected
       if (values.administered.length === 0) {
         toast.error("Please select at least one medication to administer");
         setIsSubmitting(false);
         return;
       }
-      
-      // Apelează server action pentru înregistrarea administrării
+      // Call server action to record administration
       const result = await recordMedicationAdministration(
         prescriptionId,
         values.administered,
         values.notes || undefined
       );
-      
       if (result.error) {
         toast.error(result.error);
       } else {
@@ -80,7 +81,7 @@ const MedicationAdministrationForm = ({ prescriptionId, medications }: Medicatio
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-4">
           <h2 className="text-lg font-medium">Administer Medications</h2>
-          
+          {/* Medication selection checkboxes */}
           <FormField
             control={form.control}
             name="administered"
@@ -136,7 +137,7 @@ const MedicationAdministrationForm = ({ prescriptionId, medications }: Medicatio
               </FormItem>
             )}
           />
-          
+          {/* Optional notes textarea */}
           <FormField
             control={form.control}
             name="notes"
@@ -155,7 +156,7 @@ const MedicationAdministrationForm = ({ prescriptionId, medications }: Medicatio
             )}
           />
         </div>
-        
+        {/* Action buttons for cancel and submit */}
         <div className="flex justify-end gap-4">
           <Button 
             type="button" 

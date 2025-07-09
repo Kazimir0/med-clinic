@@ -7,8 +7,10 @@ interface DataProps {
   patientId: string;
 }
 
+// MedicalHistoryContainer fetches and prepares a patient's medical history records for display
+// Props: id (optional), patientId (required)
 export const MedicalHistoryContainer = async ({ id, patientId }: DataProps) => {
-  // Get medical records
+  // Get all medical records for the patient, including diagnosis and lab tests, ordered by most recent
   const medicalRecords = await db.medicalRecords.findMany({
     where: { patient_id: patientId },
     include: {
@@ -18,10 +20,9 @@ export const MedicalHistoryContainer = async ({ id, patientId }: DataProps) => {
     orderBy: { created_at: "desc" },
   });
 
-  // For each record, find and add the associated doctor
+  // For each record, find and add the associated doctor (if any)
   const data = await Promise.all(
     medicalRecords.map(async (record) => {
-      // Find the doctor using doctor_id
       let doctor = null;
       if (record.doctor_id) {
         doctor = await db.doctor.findUnique({
@@ -37,6 +38,7 @@ export const MedicalHistoryContainer = async ({ id, patientId }: DataProps) => {
 
   return (
     <>
+      {/* Render the MedicalHistory component with the fetched data */}
       <MedicalHistory data={data} isShowProfile={false} />
     </>
   );

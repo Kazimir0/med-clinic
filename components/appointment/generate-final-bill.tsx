@@ -22,15 +22,24 @@ import {
 } from "../ui/dialog";
 import { Form } from "../ui/form";
 
+// Props for the GenerateFinalBills component
 interface DataProps {
-  id?: string | number;
-  total_bill: number;
+  id?: string | number; // Payment or bill ID
+  total_bill: number;  // Total bill amount
 }
+
+/**
+ * GenerateFinalBills provides a dialog form to generate a final bill for a patient.
+ * - Uses react-hook-form and Zod for validation.
+ * - Submits the form to generate the bill and shows toast notifications for success/failure.
+ * - Allows entering discount and bill date.
+ */
 export const GenerateFinalBills = ({ id, total_bill }: DataProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   let discountInfo = null;
 
+  // Initialize the form with default values and validation schema
   const form = useForm<z.infer<typeof PaymentSchema>>({
     resolver: zodResolver(PaymentSchema),
     defaultValues: {
@@ -41,6 +50,7 @@ export const GenerateFinalBills = ({ id, total_bill }: DataProps) => {
     },
   });
 
+  // Handles form submission to generate the bill
   const handleOnSubmit = async (values: z.infer<typeof PaymentSchema>) => {
     try {
       setIsLoading(true);
@@ -50,7 +60,7 @@ export const GenerateFinalBills = ({ id, total_bill }: DataProps) => {
       if (resp.success) {
         toast.success("Patient bill generated successfully!");
 
-        router.refresh();
+        router.refresh(); // Refresh the page to show updated data
 
         form.reset();
       } else if (resp.error) {
@@ -66,6 +76,7 @@ export const GenerateFinalBills = ({ id, total_bill }: DataProps) => {
 
   return (
     <>
+      {/* Dialog for generating the final bill */}
       <Dialog>
         <DialogTrigger asChild>
           <Button variant="outline" size="sm" className="text-sm font-normal">
@@ -78,6 +89,7 @@ export const GenerateFinalBills = ({ id, total_bill }: DataProps) => {
             <DialogTitle>Patient Medical Bill</DialogTitle>
           </CardHeader>
 
+          {/* Bill generation form */}
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleOnSubmit)}
@@ -92,6 +104,7 @@ export const GenerateFinalBills = ({ id, total_bill }: DataProps) => {
                 </div>
               </div>
 
+              {/* Discount input */}
               <CustomInput
                 type="input"
                 control={form.control}
@@ -100,6 +113,7 @@ export const GenerateFinalBills = ({ id, total_bill }: DataProps) => {
                 label="Discount (%)"
               />
 
+              {/* Bill date input */}
               <CustomInput
                 type="input"
                 control={form.control}

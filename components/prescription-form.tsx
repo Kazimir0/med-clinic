@@ -32,10 +32,13 @@ const prescriptionSchema = z.object({
   notes: z.string().optional(),
 });
 
+// PrescriptionForm allows doctors to create a prescription for a patient with multiple medications
+// Uses react-hook-form and zod for validation, and supports dynamic medication fields
 export function PrescriptionForm({ patients }: PrescriptionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
+  // Set up form with zod schema and default values
   const form = useForm<z.infer<typeof prescriptionSchema>>({
     resolver: zodResolver(prescriptionSchema),
     defaultValues: {
@@ -45,16 +48,17 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
     },
   });
 
+  // Manage dynamic medication fields
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "medications",
   });
 
+  // Handle form submission
   async function onSubmit(values: z.infer<typeof prescriptionSchema>) {
     try {
       setIsSubmitting(true);
       const result = await createPrescription(values);
-      
       if (result.error) {
         toast.error(result.error);
       } else {
@@ -73,6 +77,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Patient selection dropdown */}
         <FormField
           control={form.control}
           name="patientId"
@@ -101,6 +106,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
           )}
         />
 
+        {/* Medications section with dynamic fields */}
         <div>
           <h3 className="font-medium mb-4">Medications</h3>
           <div className="space-y-4">
@@ -108,6 +114,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
               <div key={field.id} className="p-4 border rounded-md bg-gray-50">
                 <div className="flex justify-between items-center mb-4">
                   <h4 className="font-medium">Medication {index + 1}</h4>
+                  {/* Remove medication button, only if more than one */}
                   {fields.length > 1 && (
                     <Button
                       type="button"
@@ -120,6 +127,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
                   )}
                 </div>
 
+                {/* Medication input fields */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -180,6 +188,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
               </div>
             ))}
 
+            {/* Add another medication button */}
             <Button
               type="button"
               variant="outline"
@@ -190,6 +199,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
           </div>
         </div>
 
+        {/* Optional notes field */}
         <FormField
           control={form.control}
           name="notes"
@@ -204,6 +214,7 @@ export function PrescriptionForm({ patients }: PrescriptionFormProps) {
           )}
         />
 
+        {/* Action buttons for cancel and submit */}
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={() => router.back()}>
             Cancel

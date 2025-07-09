@@ -37,6 +37,7 @@ interface DataProps {
     data: AvailableDoctorProps;
 }
 
+// availableDays returns the working hours for today if the doctor is available, otherwise 'Not Available'.
 export const availableDays = ({ data }: { data: Days[] }) => {
     const isTodayWorkingDay = data?.find(
         (dayObj) => dayObj?.day.toLowerCase() === todayDay.toLowerCase()
@@ -47,6 +48,8 @@ export const availableDays = ({ data }: { data: Days[] }) => {
         : "Not Available";
 };
 
+// AvailableDoctors displays a list of available doctors with their profile, specialization, and today's working hours.
+// Only admins see the 'View All' button.
 export const AvailableDoctors = async ({
     data,
 }: DataProps) => {
@@ -54,6 +57,7 @@ export const AvailableDoctors = async ({
         <div className="bg-white rounded-xl p-4">
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-lg font-semibold">Available Doctors</h1>
+                {/* Show 'View All' button for admins if there are doctors */}
                 {(await checkRole("ADMIN")) && (
                     <Button
                         asChild
@@ -65,6 +69,7 @@ export const AvailableDoctors = async ({
                     </Button>
                 )}
             </div>
+            {/* Render a card for each available doctor */}
             <div className="w-full space-y-5 md:space-y-0 md:gap-6 flex flex-col md:flex-row md:flex-wrap">
                 {data?.map((doc, id) => (
                     <Card

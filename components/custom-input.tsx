@@ -19,9 +19,13 @@ interface InputProps {
     selectList?: { label: string; value: string }[];
     defaultValue?: string;
 }
+
+// CustomInput is a flexible form input component supporting input, textarea, select, checkbox, radio, and switch types.
+// It integrates with react-hook-form for validation and state management.
 const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
     switch (props.type) {
         case "input":
+            // Render a standard text/email/password/date input
             return (
                 <FormControl>
                     <Input
@@ -31,6 +35,7 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
                 </FormControl>
             );
         case "select":
+            // Render a dropdown select input
             return (
                 <Select onValueChange={field.onChange} value={field?.value}>
                     <FormControl>
@@ -48,6 +53,7 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
                 </Select>
             );
         case "checkbox":
+            // Render a checkbox with label and description
             return (
                 <div className="items-top flex space-x-2">
                     <Checkbox
@@ -66,6 +72,7 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
                 </div>
             );
         case "radio":
+            // Render a radio group for multiple options
             return (
                 <div className="w-full">
                     <FormLabel>{props.label}</FormLabel>
@@ -93,6 +100,7 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
                 </div>
             );
         case "textarea":
+            // Render a textarea input
             return (
                 <FormControl>
                     <Textarea
@@ -104,6 +112,8 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
             );
     }
 };
+
+// Main CustomInput component for use in forms
 export const CustomInput = (props: InputProps) => {
     const { name, label, control, type } = props;
 
@@ -113,6 +123,7 @@ export const CustomInput = (props: InputProps) => {
             name={name}
             render={({ field }) => (
                 <FormItem className='w-full'>
+                    {/* Show label for all types except radio and checkbox */}
                     {type !== "radio" && type !== "checkbox" && (
                         <FormLabel>{label}</FormLabel>
                     )}
@@ -135,6 +146,8 @@ interface SwitchProps {
     workSchedule: Day[]; // Adaugă workSchedule ca prop
 }
 
+// SwitchInput manages a weekly work schedule using switches and time pickers for each day.
+// It updates the workSchedule state based on user interaction.
 export const SwitchInput = ({ data, setWorkSchedule, workSchedule }: SwitchProps) => {
     const handleChange = (day: string, field: any, value: string) => {
         setWorkSchedule((prevDays) => {
@@ -161,9 +174,10 @@ export const SwitchInput = ({ data, setWorkSchedule, workSchedule }: SwitchProps
 
     return (
         <div>
+            {/* Render a switch and time pickers for each day in the week */}
             {
                 data?.map((el, id) => {
-                    // Verifică dacă ziua există în programul de lucru
+                    // Find if the current day is in the work schedule
                     const currentDay = workSchedule.find(d => d.day === el.value);
                     
                     return (
