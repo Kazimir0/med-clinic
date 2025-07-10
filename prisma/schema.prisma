@@ -1,12 +1,18 @@
+// Prisma schema for the medical platform database
+// Defines enums, models, and relationships for users, appointments, billing, medical records, and more
+
 generator client {
   provider = "prisma-client-js"
 }
 
+// Database connection configuration
+// Uses PostgreSQL and reads the connection string from the DATABASE_URL environment variable
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// User roles in the system (admin, nurse, doctor, etc.)
 enum Role {
   ADMIN
   NURSE
@@ -16,22 +22,26 @@ enum Role {
   CASHIER
 }
 
+// Status for staff accounts
 enum Status {
   ACTIVE
   INACTIVE
   DORMANT
 }
 
+// Job type for staff (full-time or part-time)
 enum JOBTYPE {
   FULL
   PART
 }
 
+// Gender options
 enum Gender {
   MALE
   FEMALE
 }
 
+// Status of an appointment
 enum AppointmentStatus {
   PENDING
   SCHEDULED
@@ -39,82 +49,88 @@ enum AppointmentStatus {
   COMPLETED
 }
 
+// Payment method options
 enum PaymentMethod {
   CASH
   CARD
 }
 
+// Payment status options
 enum PaymentStatus {
   PAID
   UNPAID
   PART
 }
 
+// Patient model: stores patient personal and medical info
 model Patient {
-  id                       String   @id //clerk userId
-  first_name               String
-  last_name                String
-  date_of_birth            DateTime
-  gender                   Gender   @default(MALE)
-  phone                    String
-  email                    String   @unique
-  marital_status           String
-  address                  String
-  emergency_contact_name   String
-  emergency_contact_number String
-  relation                 String
-  blood_group              String?
-  allergies                String?
-  medical_conditions       String?
-  medical_history          String?
-  insurance_provider       String?
-  insurance_number         String?
-  privacy_consent          Boolean
-  service_consent          Boolean
-  medical_consent          Boolean
-  img                      String?
-  colorCode                String?
+  id                       String   @id // Clerk userId, unique identifier from authentication provider
+  first_name               String   // Patient's first name
+  last_name                String   // Patient's last name
+  date_of_birth            DateTime // Date of birth
+  gender                   Gender   @default(MALE) // Gender (default: MALE)
+  phone                    String   // Contact phone number
+  email                    String   @unique // Unique email address
+  marital_status           String   // Marital status
+  address                  String   // Home address
+  emergency_contact_name   String   // Emergency contact's name
+  emergency_contact_number String   // Emergency contact's phone
+  relation                 String   // Relation to emergency contact
+  blood_group              String?  // Optional blood group
+  allergies                String?  // Optional allergies
+  medical_conditions       String?  // Optional medical conditions
+  medical_history          String?  // Optional medical history
+  insurance_provider       String?  // Optional insurance provider
+  insurance_number         String?  // Optional insurance number
+  privacy_consent          Boolean  // Consent for privacy policy
+  service_consent          Boolean  // Consent for services
+  medical_consent          Boolean  // Consent for medical treatment
+  img                      String?  // Optional profile image URL
+  colorCode                String?  // Optional color code for UI
 
+  // Relations to other models
   appointments  Appointment[]
   medical       MedicalRecords[]
   payments      Payment[]
   ratings       Rating[]
   prescriptions Prescription[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at DateTime @default(now()) // Record creation timestamp
+  updated_at DateTime @updatedAt      // Record update timestamp
 }
 
+// Doctor model: stores doctor info, specialization, and relations
 model Doctor {
-  id                  String  @id
-  email               String  @unique
-  name                String
-  specialization      String
-  license_number      String
-  phone               String
-  address             String
-  department          String?
-  img                 String?
-  colorCode           String?
-  availability_status String?
+  id                  String  @id // Unique doctor ID
+  email               String  @unique // Unique email
+  name                String  // Full name
+  specialization      String  // Medical specialization
+  license_number      String  // Medical license number
+  phone               String  // Contact phone
+  address             String  // Address
+  department          String? // Optional department
+  img                 String? // Optional profile image
+  colorCode           String? // Optional color code for UI
+  availability_status String? // Optional availability status
 
-  type          JOBTYPE        @default(FULL)
-  working_days  WorkingDays[]
-  appointments  Appointment[]
-  ratings       Rating[]
-  diagnosis     Diagnosis[]
-  prescriptions Prescription[]
+  type          JOBTYPE        @default(FULL) // Job type (full/part time)
+  working_days  WorkingDays[]  // Doctor's working days
+  appointments  Appointment[]  // Appointments assigned
+  ratings       Rating[]       // Ratings received
+  diagnosis     Diagnosis[]    // Diagnoses made
+  prescriptions Prescription[] // Prescriptions issued
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
 
+// WorkingDays: doctor's schedule for each day
 model WorkingDays {
-  id         Int    @id @default(autoincrement())
-  doctor_id  String
-  day        String
-  start_time String
-  close_time String
+  id         Int    @id @default(autoincrement()) // Unique ID
+  doctor_id  String // Linked doctor
+  day        String // Day of the week
+  start_time String // Start time
+  close_time String // End time
 
   doctor Doctor @relation(fields: [doctor_id], references: [id], onDelete: Cascade)
 
@@ -122,6 +138,7 @@ model WorkingDays {
   updated_at DateTime @updatedAt
 }
 
+// Staff: non-doctor staff members (nurses, cashiers, etc.)
 model Staff {
   id             String  @id
   email          String  @unique
@@ -140,31 +157,33 @@ model Staff {
   updated_at DateTime @updatedAt
 }
 
+// Appointment: links patients and doctors, tracks status and details
 model Appointment {
   id               Int               @id @default(autoincrement())
-  patient_id       String
-  doctor_id        String
-  appointment_date DateTime
-  time             String
-  status           AppointmentStatus @default(PENDING)
-  type             String
-  note             String?
+  patient_id       String            // Linked patient
+  doctor_id        String            // Linked doctor
+  appointment_date DateTime          // Date of appointment
+  time             String            // Time of appointment
+  status           AppointmentStatus @default(PENDING) // Status
+  type             String            // Type of appointment
+  note             String?           // Optional note from patient
   patient          Patient           @relation(fields: [patient_id], references: [id], onDelete: Cascade)
   doctor           Doctor            @relation(fields: [doctor_id], references: [id], onDelete: Cascade)
 
-  bills   Payment[]
-  medical MedicalRecords[]
+  bills   Payment[]        // Payments for this appointment
+  medical MedicalRecords[] // Medical records for this appointment
 
-  reason     String?
+  reason     String? // Reason for cancellation (if any)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
 
+// Payment: billing info for appointments
 model Payment {
   id             Int      @id @default(autoincrement())
   bill_id        Int?
   patient_id     String
-  appointment_id Int      @unique
+  appointment_id Int      @unique // Each appointment has one payment
   bill_date      DateTime
   payment_date   DateTime
   discount       Float
@@ -177,21 +196,22 @@ model Payment {
 
   appointment Appointment    @relation(fields: [appointment_id], references: [id], onDelete: Cascade)
   patient     Patient        @relation(fields: [patient_id], references: [id], onDelete: Cascade)
-  bills       PatientBills[]
+  bills       PatientBills[] // Linked bill items
 
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
-  stripe_session_id String?
+  stripe_session_id String?  // Stripe session for online payments
 }
 
+// PatientBills: individual services billed to a patient
 model PatientBills {
   id           Int      @id @default(autoincrement())
-  bill_id      Int
-  service_id   Int
-  service_date DateTime
-  quantity     Int
-  unit_cost    Float
-  total_cost   Float
+  bill_id      Int      // Linked payment
+  service_id   Int      // Linked service
+  service_date DateTime // Date of service
+  quantity     Int      // Quantity of service
+  unit_cost    Float    // Cost per unit
+  total_cost   Float    // Total cost
   service      Services @relation(fields: [service_id], references: [id])
   payment      Payment  @relation(fields: [bill_id], references: [id], onDelete: Cascade)
 
@@ -199,14 +219,15 @@ model PatientBills {
   updated_at DateTime @updatedAt
 }
 
+// LabTest: lab tests linked to medical records
 model LabTest {
   id         Int      @id @default(autoincrement())
-  record_id  Int
-  test_date  DateTime
-  result     String
-  status     String
-  notes      String?
-  service_id Int      @unique
+  record_id  Int      // Linked medical record
+  test_date  DateTime // Date of test
+  result     String   // Test result
+  status     String   // Status of test
+  notes      String?  // Optional notes
+  service_id Int      @unique // Linked service
   services   Services @relation(fields: [service_id], references: [id])
 
   medical_record MedicalRecords @relation(fields: [record_id], references: [id], onDelete: Cascade)
@@ -215,56 +236,59 @@ model LabTest {
   updated_at DateTime @updatedAt
 }
 
+// MedicalRecords: stores patient medical history, treatments, and links to other data
 model MedicalRecords {
   id             Int     @id @default(autoincrement())
-  patient_id     String
-  appointment_id Int
-  doctor_id      String
-  treatment_plan String?
-  prescriptions  String?
-  lab_request    String?
+  patient_id     String  // Linked patient
+  appointment_id Int     // Linked appointment
+  doctor_id      String  // Linked doctor
+  treatment_plan String? // Optional treatment plan
+  prescriptions  String? // Optional prescriptions
+  lab_request    String? // Optional lab request
 
   appointment Appointment @relation(fields: [appointment_id], references: [id], onDelete: Cascade)
   patient     Patient     @relation(fields: [patient_id], references: [id], onDelete: Cascade)
-  lab_test    LabTest[]
-  notes       String?
+  lab_test    LabTest[]   // Linked lab tests
+  notes       String?     // Optional notes
 
-  vital_signs VitalSigns[]
-  diagnosis   Diagnosis[]
+  vital_signs VitalSigns[] // Linked vital signs
+  diagnosis   Diagnosis[]  // Linked diagnoses
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
 
+// VitalSigns: stores vital sign measurements for a medical record
 model VitalSigns {
   id                Int            @id @default(autoincrement())
-  patient_id        String
-  medical_id        Int
+  patient_id        String         // Linked patient
+  medical_id        Int            // Linked medical record
   medical           MedicalRecords @relation(fields: [medical_id], references: [id], onDelete: Cascade)
-  body_temperature  Float
-  systolic          Int
-  diastolic         Int
-  heartRate         String
-  respiratory_rate  Int?
-  oxygen_saturation Int?
-  weight            Float
-  height            Float
+  body_temperature  Float          // Body temperature
+  systolic          Int            // Systolic blood pressure
+  diastolic         Int            // Diastolic blood pressure
+  heartRate         String         // Heart rate
+  respiratory_rate  Int?           // Optional respiratory rate
+  oxygen_saturation Int?           // Optional oxygen saturation
+  weight            Float          // Weight
+  height            Float          // Height
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
 
+// Diagnosis: stores diagnosis info for a medical record
 model Diagnosis {
   id                     Int     @id @default(autoincrement())
-  patient_id             String
-  medical_id             Int
-  doctor_id              String
+  patient_id             String  // Linked patient
+  medical_id             Int     // Linked medical record
+  doctor_id              String  // Linked doctor
   doctor                 Doctor  @relation(fields: [doctor_id], references: [id])
-  symptoms               String
-  diagnosis              String
-  notes                  String?
-  prescribed_medications String?
-  follow_up_plan         String?
+  symptoms               String  // Symptoms reported
+  diagnosis              String  // Diagnosis result
+  notes                  String? // Optional notes
+  prescribed_medications String? // Optional prescribed medications
+  follow_up_plan         String? // Optional follow-up plan
 
   medical MedicalRecords @relation(fields: [medical_id], references: [id], onDelete: Cascade)
 
@@ -272,24 +296,26 @@ model Diagnosis {
   updated_at DateTime @updatedAt
 }
 
+// AuditLog: tracks changes and actions in the system
 model AuditLog {
   id        Int     @id @default(autoincrement())
-  user_id   String
-  record_id String
-  action    String
-  details   String?
-  model     String
+  user_id   String  // User who performed the action
+  record_id String  // Affected record
+  action    String  // Action performed
+  details   String? // Optional details
+  model     String  // Model affected
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
 
+// Rating: stores patient ratings for staff/doctors
 model Rating {
   id         Int     @id @default(autoincrement())
-  staff_id   String
-  patient_id String
-  rating     Int
-  comment    String?
+  staff_id   String  // Rated staff/doctor
+  patient_id String  // Patient who rated
+  rating     Int     // Rating value
+  comment    String? // Optional comment
 
   doctor  Doctor  @relation(fields: [staff_id], references: [id], onDelete: Cascade)
   patient Patient @relation(fields: [patient_id], references: [id], onDelete: Cascade)
@@ -298,71 +324,76 @@ model Rating {
   updated_at DateTime @updatedAt
 }
 
+// Services: catalog of billable services
 model Services {
   id           Int            @id @default(autoincrement())
-  service_name String
-  description  String
-  price        Float
-  labtest      LabTest?
-  bills        PatientBills[]
+  service_name String         // Name of the service
+  description  String         // Description
+  price        Float          // Price
+  labtest      LabTest?       // Linked lab test (if any)
+  bills        PatientBills[] // Bills for this service
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
 
+// Notification: system/user notifications
 model Notification {
   id      Int     @id @default(autoincrement())
   user_id String? // ID of the user for whom the notification is intended (null for global notifications)
-  title   String
-  message String
-  type    String // Can be: 'appointment', 'medical', 'payment', etc.
-  read    Boolean @default(false)
-  data    Json? // Additional information in JSON format (e.g. appointment ID)
+  title   String  // Notification title
+  message String  // Notification message
+  type    String  // Can be: 'appointment', 'medical', 'payment', etc.
+  read    Boolean @default(false) // Read status
+  data    Json?   // Additional information in JSON format (e.g. appointment ID)
   link    String? // Link to the associated notification resource
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
 
+// Prescription: stores prescription info and links to medications and administrations
 model Prescription {
   id         Int      @id @default(autoincrement())
-  patient_id String
-  doctor_id  String
+  patient_id String   // Linked patient
+  doctor_id  String   // Linked doctor
   status     String   @default("ACTIVE") // ACTIVE, COMPLETED, CANCELED
-  notes      String?
+  notes      String?  // Optional notes
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   // Relations
   patient     Patient      @relation(fields: [patient_id], references: [id])
   doctor      Doctor       @relation(fields: [doctor_id], references: [id])
-  medications Medication[]
-  administrations MedicationAdministration[]
+  medications Medication[] // Medications in this prescription
+  administrations MedicationAdministration[] // Administrations of medications
 }
 
+// Medication: details for each medication in a prescription
 model Medication {
   id              Int     @id @default(autoincrement())
-  prescription_id Int
-  name            String
-  dosage          String
-  frequency       String
-  instructions    String?
+  prescription_id Int     // Linked prescription
+  name            String  // Medication name
+  dosage          String  // Dosage instructions
+  frequency       String  // Frequency of administration
+  instructions    String? // Optional additional instructions
 
   // Relations
   prescription    Prescription @relation(fields: [prescription_id], references: [id], onDelete: Cascade)
-  administrations  MedicationAdministration[]
+  administrations  MedicationAdministration[] // Administrations of this medication
 
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
 }
 
+// MedicationAdministration: records each administration of a medication
 model MedicationAdministration {
   id             Int      @id @default(autoincrement())
-  prescription_id Int
-  medication_id  Int
-  administered_by String  // ID-ul doctorului sau asistentei care a administrat
-  administered_at DateTime @default(now())
-  notes          String?
+  prescription_id Int     // Linked prescription
+  medication_id  Int      // Linked medication
+  administered_by String  // ID of the doctor or nurse who administered
+  administered_at DateTime @default(now()) // Time of administration
+  notes          String?  // Optional notes
 
   // Relations
   prescription   Prescription @relation(fields: [prescription_id], references: [id], onDelete: Cascade)
