@@ -27,11 +27,15 @@ import { createNewAppointment } from "@/app/actions/appointment";
 
 const TYPES = [
     { label: "General Consultation", value: "General Consultation" },
-    { label: "General Check up", value: "General Check Up" },
-    { label: "Antenatal", value: "Antenatal" },
-    { label: "Maternity", value: "Maternity" },
-    { label: "Lab Test", value: "Lab Test" },
-    { label: "ANT", value: "ANT" },
+    { label: "Routine Checkup", value: "Routine Checkup" },
+    { label: "Psychiatric Consultation", value: "Psychiatric Consultation" },
+    { label: "Psychological Evaluation", value: "Psychological Evaluation" },
+    { label: "Psychological Counseling", value: "Psychological Counseling" },
+    { label: "Group Therapy", value: "Group Therapy" },
+    { label: "Individual Therapy", value: "Individual Therapy" },
+    { label: "Prescription Issuance", value: "Prescription Issuance" },
+    { label: "Medical Report", value: "Medical Report" },
+    { label: "Other Services", value: "Other Services" },
 ];
 
 // BookAppointment provides a sheet dialog form for patients to book a new appointment.
